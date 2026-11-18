@@ -48,7 +48,7 @@ Everything on the phone is erased twice (bootloader unlock and install). Before 
 
 ## 3. Download and unpack the image
 
-From the [release page](../../../releases), download into one folder:
+From the [release page](https://github.com/bottlebrushes/hibreak-pro-a17/releases), download into one folder:
 
 - `hibreak-pro-a17-<version>-gapps.img.xz` (or `-vanilla`), or all of its `.partNN` pieces if it was split;
 - `SHA256SUMS`.

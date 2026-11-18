@@ -44,7 +44,7 @@ Two variants:
 | **GApps** | `hibreak-pro-a17-<version>-gapps.img.xz` | Google Play Store, Play services and Google apps (Evolution X's built-in set). This is the configuration the developer runs daily. |
 | **Vanilla** | `hibreak-pro-a17-<version>-vanilla.img.xz` | No Google apps or services. Same HiBreak features. Has **not** been booted on a phone yet (see [Known issues](KNOWN-ISSUES.md)). |
 
-Downloads, checksums and release notes: [Releases](../../releases).
+Downloads, checksums and release notes: [Releases](https://github.com/bottlebrushes/hibreak-pro-a17/releases).
 
 ## Requirements
 

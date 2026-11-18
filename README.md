@@ -10,6 +10,11 @@ It replaces only the `system` partition. Bigme's stock kernel, boot, vendor and 
 > **Unofficial and unsupported.** Not made or endorsed by Bigme, Evolution X, TrebleDroid or Google. Installing it
 > unlocks the bootloader and erases the phone. Read [Risks](#risks) before you start.
 
+> **Early release, tested on one phone.** The Google-apps image runs daily on one HiBreak Pro B651, but always with a
+> Magisk-patched boot image. The stock boot that the install guide uses, the vanilla (no Google apps) image and the
+> rollback to Bigme stock have not been tested on hardware yet. Only install it if you can recover the phone with
+> fastboot, and please report what happens in [Issues](../../issues).
+
 | Shade with front light | Lock screen (painting style) | Volume panel |
 |---|---|---|
 | ![Shade](screenshots/shade.png) | ![Lock screen](screenshots/lock-screen.png) | ![Volume panel](screenshots/volume-panel.png) |

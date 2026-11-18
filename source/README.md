@@ -45,7 +45,7 @@ JOBS=16 ../source/rom/build.sh "$PWD" treble_arm64_bgN cp2a
 WITH_GMS=false JOBS=16 ../source/rom/build.sh "$PWD" treble_arm64_bvN cp2a
 ```
 
-Output: `out/target/product/tdgsi_arm64_ab/system.img` (ext4, ~5.7 GB). Release builds are this file unchanged,
+Output: `out/target/product/tdgsi_arm64_ab/system.img` (ext4, 5.7 GB GApps, 3.4 GB vanilla). Release builds are this file unchanged,
 compressed with `xz`.
 
 Notes:

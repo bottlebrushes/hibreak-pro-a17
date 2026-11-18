@@ -9,7 +9,7 @@ What gets changed on the phone, all on slot **a**:
 | Partition | Change |
 |---|---|
 | `vbmeta_a` | Your stock `vbmeta.img`, flashed with verity and verification disabled (needed for any GSI) |
-| `system_a` | Replaced by the Android 17 image (about 5.7 GB; fastbootd resizes the logical partition) |
+| `system_a` | Replaced by the Android 17 image (5.7 GB GApps, 3.4 GB vanilla; fastbootd resizes the logical partition) |
 | `metadata`, `userdata` | Erased / formatted: **all data is gone** |
 | everything else | Untouched: `boot`, `vendor_boot`, `dtbo`, `vendor`, `product`, `system_ext`, modem, `lk`, `preloader`, `nvram`, `nvdata`, `protect*`, `proinfo` |
 
@@ -101,7 +101,7 @@ Notes:
 - If fastbootd says there is not enough space in `super`, a stock update left copies on slot b. Remove them in
   fastbootd and flash again: `fastboot delete-logical-partition system_b` (and `system_ext_b`, `product_b`,
   `vendor_b`; `fastboot getvar all` lists them). Never delete `*_a` partitions.
-- Use a USB port directly on the computer, and a data cable. A 5.7 GB flash takes a few minutes.
+- Use a USB port directly on the computer, and a data cable. Flashing 3.4–5.7 GB takes a few minutes.
 - Phone already on a GSI with verification off (e.g. an earlier release): `--skip-vbmeta` instead of `--vbmeta`.
 
 ## 5. First boot

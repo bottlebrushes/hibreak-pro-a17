@@ -33,7 +33,7 @@ else
 fi
 check "$base"
 img=${base%.xz}
-echo "decompressing -> $img (about 5.7 GB)"
+echo "decompressing -> $img (3.4–5.7 GB)"
 xz -d -k -f -T0 "$base"
 check "$img"
 sha256 "$img" | sed "s|\$|  $img|" >"$img.sha256"

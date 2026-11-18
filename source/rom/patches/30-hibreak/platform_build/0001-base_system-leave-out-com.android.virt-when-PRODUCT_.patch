@@ -1,0 +1,38 @@
+From f985c21a5b266c243a9fd873a1e602c46797fa54 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:19:35 +0100
+Subject: [PATCH] base_system: leave out com.android.virt when
+ PRODUCT_AVF_ENABLED is false
+
+The virtualization APEX has an EROFS-only payload. Devices whose kernel lacks
+EROFS (e.g. MediaTek 4.19 GSI targets) fail apexd bootstrap with it installed.
+---
+ target/product/base_system.mk | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/target/product/base_system.mk b/target/product/base_system.mk
+index b84747b..aded065 100644
+--- a/target/product/base_system.mk
++++ b/target/product/base_system.mk
+@@ -86,7 +86,6 @@ PRODUCT_PACKAGES += \
+     $(RELEASE_PACKAGE_TZDATA_MODULE) \
+     com.android.uprobestats \
+     com.android.uwb \
+-    com.android.virt \
+     com.android.wifi \
+     ContactsProvider \
+     content \
+@@ -667,3 +666,10 @@ $(call inherit-product,$(SRC_TARGET_DIR)/product/updatable_apex.mk)
+ 
+ $(call soong_config_set, bionic, large_system_property_node, $(RELEASE_LARGE_SYSTEM_PROPERTY_NODE))
+ $(call soong_config_set, Aconfig, read_from_new_storage, $(RELEASE_READ_FROM_NEW_STORAGE))
++
++# The virtualization APEX ships an EROFS payload only; leave it out when AVF is disabled
++# (kernels without EROFS can't mount it and apexd bootstrap fails).
++ifneq ($(PRODUCT_AVF_ENABLED),false)
++PRODUCT_PACKAGES += com.android.virt
++endif
++
+-- 
+2.43.0
+

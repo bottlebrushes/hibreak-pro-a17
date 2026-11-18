@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original line drawing: a bare branch with a few leaves under a crescent moon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="240dp"
+    android:viewportWidth="320" android:viewportHeight="240">
+  <!-- moon -->
+  <path android:fillColor="#FF1E1E1E"
+      android:pathData="M248,38a26,26 0,1 0,26 34a20,20 0,1 1,-26 -34z"/>
+  <!-- main branch -->
+  <path android:strokeColor="#FF1E1E1E" android:strokeWidth="4" android:strokeLineCap="round" android:fillColor="#00000000"
+      android:pathData="M10,200C60,186 96,170 132,150C164,132 196,124 236,122"/>
+  <path android:strokeColor="#FF1E1E1E" android:strokeWidth="2.5" android:strokeLineCap="round" android:fillColor="#00000000"
+      android:pathData="M96,170C104,150 118,136 140,124M150,142C162,122 176,110 196,102M190,128C206,132 220,142 230,156M60,186C66,170 66,158 60,146"/>
+  <!-- leaves -->
+  <path android:fillColor="#FF1E1E1E" android:pathData="M140,124c8,-12 22,-14 28,-10c-6,10 -18,14 -28,10z"/>
+  <path android:fillColor="#FF1E1E1E" android:pathData="M196,102c10,-10 24,-8 28,-2c-8,8 -20,8 -28,2z"/>
+  <path android:fillColor="#FF1E1E1E" android:pathData="M230,156c12,0 20,10 18,18c-10,0 -18,-8 -18,-18z"/>
+  <path android:fillColor="#FF1E1E1E" android:pathData="M60,146c-4,-12 2,-24 10,-26c4,10 -2,22 -10,26z"/>
+  <path android:fillColor="#FF1E1E1E" android:pathData="M236,122c10,-6 22,-2 24,4c-10,6 -20,4 -24,-4z"/>
+  <!-- small bird on the branch -->
+  <path android:fillColor="#FF1E1E1E"
+      android:pathData="M112,158c4,-14 18,-20 30,-16c6,2 10,6 12,10l8,-2l-6,6c0,8 -8,14 -18,14c-8,0 -16,-2 -22,-6l-16,4l12,-10z"/>
+  <path android:strokeColor="#FF1E1E1E" android:strokeWidth="2" android:fillColor="#00000000"
+      android:pathData="M128,174l-2,10M136,174l2,10"/>
+</vector>

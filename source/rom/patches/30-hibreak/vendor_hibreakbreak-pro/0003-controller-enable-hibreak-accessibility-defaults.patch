@@ -1,0 +1,112 @@
+From dbe8f199c3ffe858e96e8e11c5e89548f618eacb Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 08:21:30 +0100
+Subject: [PATCH] controller: enable HiBreak accessibility defaults
+
+---
+ .../com/lmqr/ha9_comp_service/BootReceiver.kt | 75 +++++++++++++------
+ 1 file changed, 51 insertions(+), 24 deletions(-)
+
+diff --git a/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/BootReceiver.kt b/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/BootReceiver.kt
+index 70bfba2..eff214c 100644
+--- a/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/BootReceiver.kt
++++ b/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/BootReceiver.kt
+@@ -1,43 +1,70 @@
+ package com.lmqr.ha9_comp_service
+ 
+ import android.content.BroadcastReceiver
++import android.content.ComponentName
+ import android.content.Context
+ import android.content.Intent
+ import android.os.SystemProperties
+ import android.provider.Settings
+ 
++
+ class BootReceiver : BroadcastReceiver() {
++    companion object {
++        private const val SHADE_SERVICE = "local.eink.shade/.ShadeService"
++        private const val DEFAULTS_PREFS = "hibreak_boot_defaults"
++        private const val HIGH_CONTRAST_INITIALIZED = "high_contrast_initialized"
++        private const val ANIMATION_INITIALIZED = "animation_initialized"
++    }
++
+     override fun onReceive(context: Context, intent: Intent) {
+-        // Get the intended service from system property
+-        val propertyValue = SystemProperties.get(
+-            "persist.accessibility.enabled_service", "")
+-            
+-        // Check if service is already enabled
+-        val serviceName = context.packageName + "/" + 
+-            A9AccessibilityService::class.java.canonicalName
++        val propertyValue = SystemProperties.get("persist.accessibility.enabled_service", "")
++        val controllerService = ComponentName(
++            context, A9AccessibilityService::class.java).flattenToString()
++        val controllerShortName =
++            "${context.packageName}/.${A9AccessibilityService::class.java.simpleName}"
++        val propertyMatches = propertyValue.isEmpty()
++                || propertyValue == controllerService
++                || propertyValue == controllerShortName
++
+         var enabledServices = Settings.Secure.getString(
+-            context.contentResolver,
+-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+-            
+-        if (enabledServices == null) enabledServices = ""
+-        
+-        // Enable if needed and matching our property
+-        if (!enabledServices.contains(serviceName) && 
+-            (propertyValue == serviceName || propertyValue.isEmpty())) {
+-            
+-            if (!enabledServices.isEmpty()) {
+-                enabledServices += ":"
+-            }
+-            enabledServices += serviceName
+-            
++            context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES).orEmpty()
++        val services = enabledServices.split(':').filter { it.isNotEmpty() }.toMutableList()
++        var changed = false
++
++        if (propertyMatches && !services.contains(controllerService)) {
++            services.add(controllerService)
++            changed = true
++        }
++        if (!services.contains(SHADE_SERVICE)) {
++            services.add(SHADE_SERVICE)
++            changed = true
++        }
++        if (changed) {
+             Settings.Secure.putString(
+                 context.contentResolver,
+                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+-                enabledServices)
+-                
++                services.joinToString(":"))
++            Settings.Secure.putInt(
++                context.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 1)
++        }
++
++        val prefs = context.createDeviceProtectedStorageContext().getSharedPreferences(
++            DEFAULTS_PREFS, Context.MODE_PRIVATE)
++        if (!prefs.getBoolean(ANIMATION_INITIALIZED, false)) {
++            Settings.Global.putFloat(
++                context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0.01f)
++            prefs.edit().putBoolean(ANIMATION_INITIALIZED, true).apply()
++        }
++
++        if (!prefs.getBoolean(HIGH_CONTRAST_INITIALIZED, false)) {
++            // Settings' HighContrastTextMigrationReceiver (Android 16+) turns HCT off on pre-boot when it is on
++            // and no prompt state is recorded; mark the prompt unnecessary (2) so this default survives.
++            Settings.Secure.putInt(
++                context.contentResolver, "accessibility_hct_rect_prompt_status", 2)
+             Settings.Secure.putInt(
+                 context.contentResolver,
+-                Settings.Secure.ACCESSIBILITY_ENABLED, 1)
++                Settings.Secure.ACCESSIBILITY_HIGH_TEXT_CONTRAST_ENABLED, 1)
++            prefs.edit().putBoolean(HIGH_CONTRAST_INITIALIZED, true).apply()
+         }
+     }
+ }
+\ No newline at end of file
+-- 
+2.43.0
+

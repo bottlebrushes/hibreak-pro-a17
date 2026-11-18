@@ -1,0 +1,65 @@
+From 6983ee5a1efad12da0f2673fa0a580a47cb84a05 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 05:47:19 +0100
+Subject: [PATCH 5/6] device: send XRZ IME layer mode
+
+---
+ .../CompositionEngine/src/OutputLayer.cpp     | 25 +++++++++++++++++++
+ .../unittests/mock/DisplayHardware/MockHWC2.h |  1 +
+ 2 files changed, 26 insertions(+)
+
+diff --git a/services/surfaceflinger/CompositionEngine/src/OutputLayer.cpp b/services/surfaceflinger/CompositionEngine/src/OutputLayer.cpp
+index fb1adb7..058ac1e 100644
+--- a/services/surfaceflinger/CompositionEngine/src/OutputLayer.cpp
++++ b/services/surfaceflinger/CompositionEngine/src/OutputLayer.cpp
+@@ -117,6 +117,19 @@ Rect outputToBufferBounds(const Rect& r, const Rect& frame, const FloatRect& cro
+                 static_cast<int32_t>(std::ceil(crop.top + std::max(v0, v1) * crop.getHeight())));
+ }
+ 
++// Match the stock XRZ IME mode word. The property gates this to the HiBreak panel,
++// while the cached kill switch applies on the next geometry update.
++std::optional<uint32_t> einkImeLayerMode(const char* name) {
++    static const bool xrz =
++            base::GetBoolProperty("ro.bigme.force_client_composition", false);
++    if (!xrz || !name || strstr(name, "InputMethod") == nullptr) {
++        return std::nullopt;
++    }
++    static base::CachedBoolProperty enabled("persist.debug.hibreak.ime_layer_flag");
++    return enabled.Get(true) ? std::optional<uint32_t>(0x60400089u)
++                             : std::optional<uint32_t>(0u);
++}
++
+ std::shared_ptr<gui::DisplayLuts> createLutsFromAgtm(
+         const OutputCompositionState& outputState, const sp<GraphicBuffer>& buffer,
+         const std::vector<std::optional<LutProperties>>& properties, ui::Dataspace dataspace) {
+@@ -849,6 +862,18 @@ void OutputLayer::writeOutputDependentGeometryStateToHWC(HWC2::Layer* hwcLayer,
+               toString(outputDependentState.bufferTransform).c_str(), to_string(error).c_str(),
+               static_cast<int32_t>(error));
+     }
++
++    if (const auto mode = einkImeLayerMode(getLayerFE().getDebugName())) {
++        if (auto error = hwcLayer->setLayerClass(*mode); error != hal::Error::NONE) {
++            ALOGE("[%s] Failed to set E-Ink layer mode: %s (%d)", getLayerFE().getDebugName(),
++                  to_string(error).c_str(), static_cast<int32_t>(error));
++        } else {
++            static std::atomic<int64_t> logged{-1};
++            if (logged.exchange(static_cast<int64_t>(*mode)) != static_cast<int64_t>(*mode)) {
++                ALOGI("EinkLayerMode: [%s] mode=0x%x", getLayerFE().getDebugName(), *mode);
++            }
++        }
++    }
+ }
+ 
+ void OutputLayer::writeOutputIndependentGeometryStateToHWC(
+diff --git a/services/surfaceflinger/tests/unittests/mock/DisplayHardware/MockHWC2.h b/services/surfaceflinger/tests/unittests/mock/DisplayHardware/MockHWC2.h
+index c49dac0..c952e13 100644
+--- a/services/surfaceflinger/tests/unittests/mock/DisplayHardware/MockHWC2.h
++++ b/services/surfaceflinger/tests/unittests/mock/DisplayHardware/MockHWC2.h
+@@ -158,6 +158,7 @@ public:
+     MOCK_METHOD(hal::Error, setSidebandStream, (const native_handle_t *), (override));
+     MOCK_METHOD(hal::Error, setSourceCrop, (const android::FloatRect &), (override));
+     MOCK_METHOD(hal::Error, setTransform, (hal::Transform), (override));
++    MOCK_METHOD(hal::Error, setLayerClass, (uint32_t), (override));
+     MOCK_METHOD(hal::Error, setVisibleRegion, (const android::Region &), (override));
+     MOCK_METHOD(hal::Error, setZOrder, (uint32_t), (override));
+     MOCK_METHOD(hal::Error, setColorTransform, (const android::mat4 &), (override));

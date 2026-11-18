@@ -1,0 +1,40 @@
+From 5199c9ba08eeac6237dfc173ebd2021e87977849 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 07:32:59 +0100
+Subject: [PATCH 2/3] SystemUI: port HiBreak white shade look
+
+---
+ packages/SystemUI/res/values/colors.xml | 2 +-
+ packages/SystemUI/res/values/styles.xml | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/packages/SystemUI/res/values/colors.xml b/packages/SystemUI/res/values/colors.xml
+index 3823203cd..3a3c77594 100644
+--- a/packages/SystemUI/res/values/colors.xml
++++ b/packages/SystemUI/res/values/colors.xml
+@@ -33,7 +33,7 @@
+     <color name="status_bar_icons_hover_color_dark">#38000000</color> <!-- 22% black -->
+ 
+     <!-- The dark background color behind the shade -->
+-    <color name="shade_scrim_background_dark">@androidprv:color/system_under_surface_light</color>
++    <color name="shade_scrim_background_dark">#FFFFFFFF</color>
+ 
+     <!-- Base colors for notification shade/scrim, the alpha component is adjusted programmatically
+     to match the spec -->
+diff --git a/packages/SystemUI/res/values/styles.xml b/packages/SystemUI/res/values/styles.xml
+index 651499f33..27d0b5972 100644
+--- a/packages/SystemUI/res/values/styles.xml
++++ b/packages/SystemUI/res/values/styles.xml
+@@ -467,6 +467,9 @@
+         <item name="android:homeAsUpIndicator">@drawable/ic_arrow_back</item>
+         <item name="shadowRadius">@dimen/keyguard_shadow_radius</item>
+ 
++        <item name="android:colorBackground">#FFFFFFFF</item>
++        <item name="surfaceBright">#FFFFFFFF</item>
++        <item name="underSurface">#FFFFFFFF</item>
+         <!-- Needed for MediaRoute chooser dialog -->
+         <item name="*android:isLightTheme">false</item>
+     </style>
+-- 
+2.43.0
+

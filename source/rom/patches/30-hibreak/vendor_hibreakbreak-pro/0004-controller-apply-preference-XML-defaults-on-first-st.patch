@@ -1,0 +1,27 @@
+From d1c75cdd24d03efde136e6bf8916fdeb67dee104 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 12:30:44 +0100
+Subject: [PATCH] controller: apply preference XML defaults on first start
+ (custom broadcasts, e-ink button actions)
+
+---
+ .../src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt    | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt b/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt
+index 06e14ee..f056d6b 100644
+--- a/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt
++++ b/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt
+@@ -175,6 +175,9 @@ class A9AccessibilityService : AccessibilityService(),
+             UnixSocketCommandRunner()
+         isScreenOn = getSystemService(android.os.PowerManager::class.java).isInteractive
+         commandRunner.setDisplayAwake(isScreenOn)
++        // Write the settings screen's defaults once (never overrides saved choices), so a fresh install behaves
++        // as the screen shows: allow_custom_broadcast and the e-ink button actions otherwise use code fallbacks.
++        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false)
+         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+         // Owner requested the fastest measured e-ink mode in Settings and its search UI.
+         // Apply once, so later explicit per-app choices remain the owner's choices.
+-- 
+2.43.0
+

@@ -1,0 +1,82 @@
+// HiBreakBreak Pro 0.1.6 payloads rebuilt or installed for Android 17.
+
+runtime_resource_overlay {
+    name: "treble-overlay-Bigme-HiBreak_EEA",
+    resource_dirs: ["bigme-overlay/res"],
+    manifest: "bigme-overlay/AndroidManifest.xml",
+    product_specific: true,
+    certificate: "platform",
+    min_sdk_version: "35",
+}
+
+runtime_resource_overlay {
+    name: "HiBreakBirdDoze",
+    resource_dirs: ["sleep-doze/res"],
+    manifest: "sleep-doze/AndroidManifest.xml",
+    product_specific: true,
+    certificate: "platform",
+    min_sdk_version: "35",
+}
+
+runtime_resource_overlay {
+    name: "RefreshPrinceDefaults",
+    resource_dirs: ["built-in-defaults/res"],
+    manifest: "built-in-defaults/AndroidManifest.xml",
+    product_specific: true,
+    certificate: "platform",
+    min_sdk_version: "35",
+}
+
+runtime_resource_overlay {
+    name: "HiBreakSettingsDefaults",
+    resource_dirs: ["settings-defaults/res"],
+    manifest: "settings-defaults/AndroidManifest.xml",
+    product_specific: true,
+    certificate: "platform",
+    min_sdk_version: "35",
+}
+
+runtime_resource_overlay {
+    name: "RefreshPrinceLightShade",
+    resource_dirs: ["light-shade-colors/res"],
+    manifest: "light-shade-colors/AndroidManifest.xml",
+    product_specific: true,
+    certificate: "platform",
+    min_sdk_version: "35",
+}
+
+android_app_import {
+    name: "HiBreakProbe",
+    apk: "prebuilts/HiBreakProbe.apk",
+    product_specific: true,
+    presigned: true,
+    // Upstream release APK, v2-signed and aligned: install as-is.
+    preprocessed: true,
+    dex_preopt: {
+        enabled: false,
+    },
+}
+
+prebuilt_etc {
+    name: "hibreak-bootanimation",
+    src: "prebuilts/bootanimation.zip",
+    filename: "bootanimation.zip",
+    sub_dir: "media",
+    product_specific: true,
+}
+
+prebuilt_etc {
+    name: "hibreak-bootanimation-rc",
+    src: "prebuilts/hibreak_bootanimation.rc",
+    filename: "hibreak_bootanimation.rc",
+    sub_dir: "init",
+    product_specific: true,
+}
+
+prebuilt_etc {
+    name: "hibreak-initial-package-stopped-states",
+    src: "prebuilts/initial-package-stopped-states-refresh-prince.xml",
+    filename: "initial-package-stopped-states-refresh-prince.xml",
+    sub_dir: "sysconfig",
+    product_specific: true,
+}

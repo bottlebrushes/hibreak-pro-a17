@@ -1,0 +1,14 @@
+# Modules built by rom/build.sh before the full system image: one or more per project our patches change.
+# Add the module when a patch touches a new project.
+surfaceflinger
+framework-minus-apex
+services
+vold
+init_second_stage
+netbpfload
+bpfloader
+libnetd_updatable
+libnetworkstats
+service-connectivity
+framework-connectivity
+framework-connectivity-t

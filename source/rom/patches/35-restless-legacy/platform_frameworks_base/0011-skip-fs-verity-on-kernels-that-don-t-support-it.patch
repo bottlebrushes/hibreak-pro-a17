@@ -1,0 +1,65 @@
+From 47604774735f21176165fc78a9096742c6e132d2 Mon Sep 17 00:00:00 2001
+From: "Christopher A. Williamson" <contact@chrisaw.io>
+Date: Thu, 26 Mar 2026 14:27:44 +0000
+Subject: [PATCH] skip fs-verity on kernels that don't support it
+
+on GSI builds the system partition is android 16 but the vendor kernel
+may predate fs-verity (added in 5.4).  isFsVeritySupported() only
+checked DEVICE_INITIAL_SDK_INT but not actual kernel support, causing
+INSTALL_FAILED_BAD_SIGNATURE when installing APKs with .idsig files
+and INSTALL_PARSE_FAILED_NO_CERTIFICATES when verifying v4 signatures
+on kernel 4.14/4.19 devices.
+
+add a /sys/fs/verity existence check to isFsVeritySupported() and guard
+fs-verity callsites that exist in this tree.
+---
+ core/java/android/util/apk/ApkSignatureSchemeV4Verifier.java  | 3 ++-
+ core/java/com/android/internal/security/VerityUtils.java      | 4 +++-
+ .../java/com/android/server/pm/PackageInstallerSession.java   | 2 +-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/core/java/android/util/apk/ApkSignatureSchemeV4Verifier.java b/core/java/android/util/apk/ApkSignatureSchemeV4Verifier.java
+index ac9ebe58e..386cc10ec 100644
+--- a/core/java/android/util/apk/ApkSignatureSchemeV4Verifier.java
++++ b/core/java/android/util/apk/ApkSignatureSchemeV4Verifier.java
+@@ -92,7 +92,8 @@ public class ApkSignatureSchemeV4Verifier {
+                 // 2. Try fs-verity next. fs-verity checks against the Merkle tree, but the
+                 // v4 signature file (including a raw root hash) is managed separately. We need to
+                 // ensure the signed data from the file is consistent with the actual file.
+-                needsConsistencyCheck = true;
++                // Skip the consistency check when the vendor kernel lacks fs-verity support.
++                needsConsistencyCheck = VerityUtils.isFsVeritySupported();
+ 
+                 final File idsig = new File(apk.getAbsolutePath() + V4Signature.EXT);
+                 try (var fis = new FileInputStream(idsig.getAbsolutePath())) {
+diff --git a/core/java/com/android/internal/security/VerityUtils.java b/core/java/com/android/internal/security/VerityUtils.java
+index ac186d0a2..324320bf0 100644
+--- a/core/java/com/android/internal/security/VerityUtils.java
++++ b/core/java/com/android/internal/security/VerityUtils.java
+@@ -56,7 +56,9 @@ public abstract class VerityUtils {
+     private static final int HASH_SIZE_BYTES = 32;
+ 
+     public static boolean isFsVeritySupported() {
+-        return Build.VERSION.DEVICE_INITIAL_SDK_INT >= Build.VERSION_CODES.R;
++        // GSI system images may run on vendor kernels without fs-verity support.
++        return Build.VERSION.DEVICE_INITIAL_SDK_INT >= Build.VERSION_CODES.R
++                && new java.io.File("/sys/fs/verity").exists();
+     }
+ 
+     /** Enables fs-verity for the file without signature. */
+diff --git a/services/core/java/com/android/server/pm/PackageInstallerSession.java b/services/core/java/com/android/server/pm/PackageInstallerSession.java
+index 268c82df6..c06345125 100644
+--- a/services/core/java/com/android/server/pm/PackageInstallerSession.java
++++ b/services/core/java/com/android/server/pm/PackageInstallerSession.java
+@@ -4586,7 +4586,7 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
+ 
+         // Needs to happen before the first v4 signature verification, which happens in
+         // getAddedApkLitesLocked.
+-        if (!isIncrementalInstallation()) {
++        if (!isIncrementalInstallation() && VerityUtils.isFsVeritySupported()) {
+             enableFsVerityToAddedApksWithIdsig();
+         }
+ 
+-- 
+2.43.0
+

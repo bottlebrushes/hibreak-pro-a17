@@ -1,0 +1,36 @@
+From 327bd60c600c081184e954b0f6599a7dda20f86e Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 15:24:05 +0100
+Subject: [PATCH] init: keep SELinux xperms when the kernel supports policydb
+ >= 30
+
+The legacy-kernel patch capped the policy at version 29 and stripped xperms on
+every kernel older than 5.4. The HiBreak Pro's MediaTek 4.19 kernel loads
+policydb 31 and its vendor policy uses xperms; the A17 test boot never reached
+post-fs. Read /sys/fs/selinux/policyvers instead of guessing from the version.
+---
+ init/selinux.cpp | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/init/selinux.cpp b/init/selinux.cpp
+index 09571b6..eb1550d 100644
+--- a/init/selinux.cpp
++++ b/init/selinux.cpp
+@@ -435,6 +435,14 @@ bool OpenSplitPolicy(PolicyFile* policy_file) {
+     // opted in.  4.9-5.4 vendor kernels are widely known to miss the
+     // backport.
+     bool kernel_lacks_xperms = KernelOlderThan(5, 4);
++    // The kernel reports the highest policydb version it can load; >= 30 means it parses xperms.
++    // Many 4.x vendor kernels (e.g. MediaTek 4.19 reports 31) have the backport, and their
++    // vendor policy relies on xperms, so trust the kernel rather than its version number.
++    std::string kernel_policyvers;
++    if (android::base::ReadFileToString("/sys/fs/selinux/policyvers", &kernel_policyvers) &&
++        std::atoi(kernel_policyvers.c_str()) >= 30) {
++        kernel_lacks_xperms = false;
++    }
+     if (kernel_lacks_xperms && !KernelOlderThan(4, 9)) {
+         // 4.9-5.4 range: allow opt-in for kernels known to have xperms
+         const char* prop = getenv("ro.boot.selinux_xperms_supported");
+-- 
+2.43.0
+

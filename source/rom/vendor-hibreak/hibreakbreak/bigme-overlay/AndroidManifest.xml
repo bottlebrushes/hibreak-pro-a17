@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="me.phh.treble.overlay.Bigme.HiBreak_EEA"
+    android:versionCode="1"
+    android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="35" android:targetSdkVersion="35" />
+    <overlay android:targetPackage="android"
+        android:priority="899"
+        android:isStatic="true"
+        android:requiredSystemPropertyName="ro.vendor.build.fingerprint"
+        android:requiredSystemPropertyValue="+*Bigme/HiBreak_EEA*" />
+</manifest>

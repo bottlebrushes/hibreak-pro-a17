@@ -1,0 +1,29 @@
+From 97cb080784bb6d5074e710382daa0045be5f7b88 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 04:55:22 +0100
+Subject: [PATCH] bootctl: name the restored HIDL boot 1.1 client version
+
+hardware/interfaces BootControlClient gained BOOTCTL_V1_1 for legacy vendors;
+handle it in the -Wswitch-checked ToString().
+
+Change-Id: I369b17b94c5b6bef2e164e3af0dad0ffdd75dc71
+---
+ bootctl/bootctl.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/bootctl/bootctl.cpp b/bootctl/bootctl.cpp
+index 2dc679e..dc61c93 100644
+--- a/bootctl/bootctl.cpp
++++ b/bootctl/bootctl.cpp
+@@ -60,6 +60,8 @@ static void usage(FILE* where, int /* argc */, char* argv[]) {
+ 
+ static constexpr auto ToString(BootControlVersion ver) {
+     switch (ver) {
++        case BootControlVersion::BOOTCTL_V1_1:
++            return "android.hardware.boot@1.1::IBootControl";
+         case BootControlVersion::BOOTCTL_V1_2:
+             return "android.hardware.boot@1.2::IBootControl";
+         case BootControlVersion::BOOTCTL_AIDL:
+-- 
+2.43.0
+

@@ -1,0 +1,70 @@
+From bb2dc8a65e6d5e1e7c00a2e3c1ba6b8774bae956 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 07:17:32 +0100
+Subject: [PATCH 1/2] controller: Android 17 GSI build (system_ext policy,
+ platform-set fortify, SDK 35)
+
+---
+ controller/a9_accessibility_service/Android.bp             | 2 ++
+ .../src/com/lmqr/ha9_comp_service/BuildConfig.kt           | 7 +++++++
+ controller/a9_eink_daemon/Android.bp                       | 2 --
+ controller/a9_services.mk                                  | 6 +++++-
+ 4 files changed, 14 insertions(+), 3 deletions(-)
+ create mode 100644 controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/BuildConfig.kt
+
+diff --git a/controller/a9_accessibility_service/Android.bp b/controller/a9_accessibility_service/Android.bp
+index 8fc0bdc..35efc54 100644
+--- a/controller/a9_accessibility_service/Android.bp
++++ b/controller/a9_accessibility_service/Android.bp
+@@ -5,6 +5,8 @@ android_app {
+     platform_apis: true,
+     certificate: "platform",
+     privileged: true,
++    min_sdk_version: "35",
++    target_sdk_version: "35",
+     
+     static_libs: [
+         "androidx.appcompat_appcompat",
+diff --git a/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/BuildConfig.kt b/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/BuildConfig.kt
+new file mode 100644
+index 0000000..b86aac4
+--- /dev/null
++++ b/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/BuildConfig.kt
+@@ -0,0 +1,7 @@
++package com.lmqr.ha9_comp_service
++
++// Soong does not generate Gradle's BuildConfig; this matches the public release build
++// (gradle-build/build.gradle.kts with -Ppublic=true, as hibreak-mods controller/build.sh uses).
++object BuildConfig {
++    const val PUBLIC_RELEASE = true
++}
+diff --git a/controller/a9_eink_daemon/Android.bp b/controller/a9_eink_daemon/Android.bp
+index d1ee11c..4053e50 100644
+--- a/controller/a9_eink_daemon/Android.bp
++++ b/controller/a9_eink_daemon/Android.bp
+@@ -5,8 +5,6 @@ cc_binary {
+         "-Wall",
+         "-Wextra",
+         "-Werror",
+-        "-fPIE",
+-        "-D_FORTIFY_SOURCE=2",
+     ],
+     shared_libs: [
+         "liblog",
+diff --git a/controller/a9_services.mk b/controller/a9_services.mk
+index f3825ce..34c85b1 100644
+--- a/controller/a9_services.mk
++++ b/controller/a9_services.mk
+@@ -5,4 +5,8 @@ PRODUCT_PACKAGES += \
+ PRODUCT_PROPERTY_OVERRIDES += \
+     persist.accessibility.enabled_service=com.lmqr.ha9_comp_service/.A9AccessibilityService
+ 
+-BOARD_VENDOR_SEPOLICY_DIRS += vendor/a9_services/sepolicy/public
++# The stock vendor partition carries the vendor policy; keep this service's policy in the system_ext split
++# policy instead of BOARD_VENDOR_SEPOLICY_DIRS.
++SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += \
++    vendor/hibreakbreak-pro/controller/sepolicy/private \
++    vendor/hibreakbreak-pro/controller/sepolicy/public
+-- 
+2.43.0
+

@@ -1,0 +1,39 @@
+From da5895a53493c8a0f804746be54bcea49dd4aafc Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 16:01:49 +0100
+Subject: [PATCH] controller: owner's A15 button layout and anti-ghosting as
+ defaults; Fast mode for setup wizard and sign-in screens
+
+---
+ .../ha9_comp_service/A9AccessibilityService.kt    | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt b/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt
+index f056d6b..a9b15b3 100644
+--- a/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt
++++ b/controller/a9_accessibility_service/src/com/lmqr/ha9_comp_service/A9AccessibilityService.kt
+@@ -211,6 +211,21 @@ class A9AccessibilityService : AccessibilityService(),
+             fill("top_single_press_eink_action_screen_off") { edit.putString("top_single_press_eink_action_screen_off", "clear") }
+             edit.putBoolean("hibreak_tuned_defaults_v1", true).apply()
+         }
++        // Owner's Android 15 layout carried to Android 17 (Nov 14 2026), applied once on top of the defaults above:
++        // anti-ghosting (anti-flicker) on, top hold = play/pause music, top double = next track, the e-ink shade in
++        // Fast. The setup wizard and Google sign-in screens (first boot) also run Fast, so typing and paging there
++        // don't smear. Later choices made in Settings are kept.
++        if (!sharedPreferences.getBoolean("hibreak_a15_parity_v1", false)) {
++            val edit = sharedPreferences.edit()
++                .putBoolean("anti_shake_enabled", true)
++                .putString("top_long_press_eink_action", "toggle_music")
++                .putString("top_double_press_eink_action", "next_track")
++                .putString("double_press_eink_action", "open_menu")
++            for (pkg in listOf("local.eink.shade", "com.google.android.setupwizard", "com.google.android.pixel.setupwizard",
++                    "com.android.provision", "com.google.android.gms", "com.android.managedprovisioning"))
++                if (!sharedPreferences.contains("package:$pkg")) edit.putInt("package:$pkg", RefreshMode.SPEED.mode)
++            edit.putBoolean("hibreak_a15_parity_v1", true).apply()
++        }
+         // Camera, Oct 25 2026: with the keyboard up, Extreme typed as fast as Hyper (median echo
+         // 274 vs 288 ms) and scrolled more smoothly, with about half the ghosting. Apply once; a
+         // later choice of Hyper in Settings is kept.
+-- 
+2.43.0
+

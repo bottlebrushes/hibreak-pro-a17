@@ -1,0 +1,117 @@
+From e1fba1504d1c5c215de94a827dc151c7a64d08de Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 05:48:33 +0100
+Subject: [PATCH 6/6] device: add one-shot XRZ GC16 clear transaction
+
+---
+ services/surfaceflinger/SurfaceFlinger.cpp | 60 ++++++++++++++++++++++
+ services/surfaceflinger/SurfaceFlinger.h   |  4 ++
+ 2 files changed, 64 insertions(+)
+
+diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
+index d0efd23..08ccf0e 100644
+--- a/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -3552,6 +3552,9 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
+ 
+     mNotifyExpectedPresentMap[pacesetterId].hintStatus = NotifyExpectedPresentHintStatus::Start;
+     onCompositionPresented(pacesetterId, frameTargeters, presentTime);
++    if (CC_UNLIKELY(mEinkClearPending)) {
++        releaseEinkClear("presented");
++    }
+ 
+     const bool hadGpuComposited =
+             multiDisplayUnion(mCompositionCoverage).test(CompositionCoverage::Gpu);
+@@ -7584,6 +7587,10 @@ status_t SurfaceFlinger::CheckTransactCodeCredentials(uint32_t code) {
+         code == IBinder::SYSPROPS_TRANSACTION) {
+         return OK;
+     }
++    // HiBreak's one-shot E-Ink clear retains the system-UID check in onTransact.
++    if (code == 1113) {
++        return OK;
++    }
+     // Numbers from 1000 to 1047 are currently used for backdoors. The code
+     // in onTransact verifies that the user is root, and has access to use SF.
+     if (code >= 1000 && code <= 1047) {
+@@ -8144,6 +8151,23 @@ status_t SurfaceFlinger::onTransact(uint32_t code, const Parcel& data, Parcel* r
+                                                      Duration::fromNs(appDurationNs));
+                 return NO_ERROR;
+             }
++            // One-shot full clear: 4 = GC16 (default), 180 = Regal.
++            case 1113: {
++                if (uid != AID_SYSTEM ||
++                    !base::GetBoolProperty("ro.bigme.force_client_composition", false)) {
++                    return PERMISSION_DENIED;
++                }
++                int32_t mode = 4;
++                if ((data.dataAvail() != 0 && data.readInt32(&mode) != NO_ERROR) ||
++                    data.dataAvail() != 0 || (mode != 4 && mode != 180)) {
++                    return BAD_VALUE;
++                }
++                static_cast<void>(mScheduler->schedule(
++                        [mode, this]() FTL_FAKE_GUARD(kMainThreadContext) {
++                            forceEinkClear(mode);
++                        }));
++                return NO_ERROR;
++            }
+         }
+     }
+     return err;
+@@ -9991,6 +10015,42 @@ void SurfaceFlinger::sfdo_forceClientComposition(bool enabled) {
+     scheduleRepaint();
+ }
+ 
++// Arm one full-panel XRZ clear for the next client-composed frame. The vendor
++// composer consumes this mailbox on commit and resets it to -1 when successful.
++void SurfaceFlinger::forceEinkClear(int32_t mode) {
++    if (!base::SetProperty("vendor.xrz.force_global_refresh_mode", std::to_string(mode))) {
++        ALOGW("EinkClear: cannot arm mode %d", mode);
++        return;
++    }
++    mEinkClearPending = true;
++    const uint64_t generation = ++mEinkClearGeneration;
++    ALOGI("EinkClear: armed mode %d", mode);
++    const auto display = FTL_FAKE_GUARD(mStateLock, getFrontInternalDisplayLocked());
++    if (display) {
++        auto output = display->getCompositionDisplay();
++        output->editState().dirtyRegion.orSelf(output->getState().layerStackSpace.getContent());
++    }
++    mVisibleRegionsDirty = true;
++    scheduleRepaint();
++    static_cast<void>(mScheduler->scheduleDelayed(
++            [this, generation]() FTL_FAKE_GUARD(kMainThreadContext) {
++                if (mEinkClearPending && generation == mEinkClearGeneration) {
++                    releaseEinkClear("timeout");
++                }
++            },
++            ms2ns(1000)));
++}
++
++void SurfaceFlinger::releaseEinkClear(const char* why) {
++    mEinkClearPending = false;
++    if (base::GetIntProperty("vendor.xrz.force_global_refresh_mode", -1) == -1) {
++        ALOGI("EinkClear: consumed (%s)", why);
++        return;
++    }
++    base::SetProperty("vendor.xrz.force_global_refresh_mode", "-1");
++    ALOGW("EinkClear: not consumed, released (%s)", why);
++}
++
+ status_t SurfaceFlinger::sfdo_forcePacesetter(PhysicalDisplayId displayId) {
+     return mScheduler
+             ->schedule([=, this]() FTL_FAKE_GUARD(kMainThreadContext)
+diff --git a/services/surfaceflinger/SurfaceFlinger.h b/services/surfaceflinger/SurfaceFlinger.h
+index 9d8ef03..141ed46 100644
+--- a/services/surfaceflinger/SurfaceFlinger.h
++++ b/services/surfaceflinger/SurfaceFlinger.h
+@@ -1544,6 +1544,10 @@ private:
+     } mVirtualDisplayIdGenerators;
+ 
+     std::atomic_uint mDebugFlashDelay = 0;
++    void forceEinkClear(int32_t mode) REQUIRES(kMainThreadContext);
++    void releaseEinkClear(const char* why) REQUIRES(kMainThreadContext);
++    bool mEinkClearPending = false;
++    uint64_t mEinkClearGeneration = 0;
+     std::atomic_bool mDebugDisableHWC = false;
+     std::atomic_bool mDebugDisableTransformHint = false;
+     std::atomic<nsecs_t> mDebugInTransaction = 0;

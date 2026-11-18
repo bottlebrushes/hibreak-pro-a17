@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Runtime permissions the built-in E-ink Shade needs on a fresh install (A15 had them granted by hand):
+     Bluetooth tile, calendar widget, weather location, sleep pictures / books on shared storage. -->
+<exceptions>
+    <exception package="local.eink.shade">
+        <permission name="android.permission.BLUETOOTH_CONNECT" fixed="false"/>
+        <permission name="android.permission.READ_CALENDAR" fixed="false"/>
+        <permission name="android.permission.ACCESS_COARSE_LOCATION" fixed="false"/>
+        <permission name="android.permission.READ_EXTERNAL_STORAGE" fixed="false"/>
+    </exception>
+</exceptions>

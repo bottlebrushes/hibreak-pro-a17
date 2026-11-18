@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Local manifest for the HiBreak Pro Android 17 GSI: Evolution X cnb + Treble layer (cawilliamson A17 forks).
+     Copy to .repo/local_manifests/ in an Evolution X cnb checkout. Evolution already carries prebuilts/vndk/v31-v34,
+     vendor/apn and packages/modules/ImsMedia. The phone's vendor is VNDK 31, so the
+     v28-v30 prebuilts other Treble builds add are left out. -->
+<manifest>
+  <remote name="cawilliamson" fetch="https://github.com/cawilliamson/" />
+  <remote name="git-hub" fetch="https://github.com/" />
+
+  <project path="device/phh/treble" name="android_device_phh_treble" remote="cawilliamson" revision="android-17.0" clone-depth="1" />
+  <project path="treble_app" name="android_treble_app" remote="cawilliamson" revision="main" clone-depth="1" />
+  <project path="vendor/hardware_overlay" name="android_vendor_hardware_overlay" remote="cawilliamson" revision="main" clone-depth="1" />
+  <project path="vendor/interfaces" name="android_vendor_interfaces" remote="cawilliamson" revision="android-17.0" clone-depth="1" />
+  <project path="vendor/hibreakbreak-pro" name="jaronsjarons/hibreakbreak-pro" remote="git-hub" revision="e03e678e826e8c0da36ea231c78f2795a1cad8f0" clone-depth="1" />
+  <project path="vendor/lptools" name="android_vendor_lptools" remote="cawilliamson" revision="main" clone-depth="1" />
+
+</manifest>

@@ -1,0 +1,55 @@
+From 403dd5bfe60300f218aebd534a6abc99758c44b7 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 03:29:35 +0100
+Subject: [PATCH] system_properties: look up redirected props in their own
+ property area
+
+The per-process redirect (debug.phh.props.<proc>=keymaster) searched the
+redirect target in the original property's area. ro.keymaster.xxx.* lives in a
+different context than ro.boot.verifiedbootstate etc., so the lookup always
+fell back: the trustkernel keymaster saw locked/green while the TEE saw
+unlocked/orange, rejected the root of trust and vold could not create the
+metadata encryption key (/data stayed read-only, boot looped at the animation).
+---
+ libc/system_properties/system_properties.cpp | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/libc/system_properties/system_properties.cpp b/libc/system_properties/system_properties.cpp
+index 51789b8..d055c4e 100644
+--- a/libc/system_properties/system_properties.cpp
++++ b/libc/system_properties/system_properties.cpp
+@@ -267,20 +267,22 @@ const prop_info* SystemProperties::Find(const char* name) {
+     }
+   }
+ 
++  // The redirect target can live in a different property area (context) than the original
++  // name, so look it up in its own area first, then fall back to the original property.
++  if (newName != name) {
++    prop_area* rpa = contexts_->GetPropAreaForName(newName);
++    if (rpa) {
++      const prop_info* rpi = rpa->find(newName);
++      if (rpi) return rpi;
++    }
++  }
++
+   prop_area* pa = contexts_->GetPropAreaForName(name);
+   if (!pa) {
+     async_safe_format_log(ANDROID_LOG_WARN, "libc", "Access denied finding property \"%s\"", name);
+     return nullptr;
+   }
+-
+-  const prop_info* pi = pa->find(newName);
+-  if (pi == nullptr && newName != name) {
+-    pa = contexts_->GetPropAreaForName(name);
+-    if (pa) {
+-      pi = pa->find(name);
+-    }
+-  }
+-  return pi;
++  return pa->find(name);
+ }
+ 
+ static bool is_appcompat_override(const char* name) {
+-- 
+2.43.0
+

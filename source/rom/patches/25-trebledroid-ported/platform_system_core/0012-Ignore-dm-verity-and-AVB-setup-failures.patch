@@ -1,0 +1,72 @@
+From 40f65618f0eb3453805d2386d27a5cc40f0a9003 Mon Sep 17 00:00:00 2001
+From: "Christopher A. Williamson" <contact@chrisaw.io>
+Date: Fri, 25 Sep 2026 18:18:55 +0100
+Subject: [PATCH] Ignore dm-verity and AVB setup failures
+
+On Amlogic STB Android 9 vendors no boot device is set up (fstab uses
+direct mappings rather than /dev/block/by-name), so libavb cannot read
+vbmeta and dm-verity setup fails. We do not care much about dm-verity,
+so ignore the failure.
+
+Also, if AVB fails entirely, ignore/disable AVB. Needed on Honor View
+10 which declares "avb" in fstab while being AVB1.0. Do not include
+this change if you want to run GSIs on a locked bootloader.
+
+Combines the former 'Ignore dm-verity setup issues' and 'If AVB fails,
+ignore/disable AVB' patches.
+---
+ init/first_stage_init.cpp             | 6 +++++-
+ init/first_stage_mount.cpp            | 1 -
+ init/first_stage_mount_microdroid.cpp | 7 +++++++
+ 3 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/init/first_stage_init.cpp b/init/first_stage_init.cpp
+index 766c79d..8a2b831 100644
+--- a/init/first_stage_init.cpp
++++ b/init/first_stage_init.cpp
+@@ -543,7 +543,11 @@ int FirstStageMain(int argc, char** argv) {
+         }
+ 
+         if (!created_devices && !fsm->DoCreateDevices()) {
+-            LOG(FATAL) << "Failed to create devices required for first stage mount";
++            LOG(ERROR) << "Failed to create devices required for first stage mount, retrying without avb";
++            fsm = CreateFirstStageMount(cmdline + " no_vbmeta");
++            if (!fsm->DoCreateDevices()) {
++                LOG(FATAL) << "Failed to create devices required for first stage mount, retrying without avb";
++            }
+         } else if (REBOOT_BOOTLOADER_ON_PANIC && !AttemptingToBootNewSlot()) {
+             InstallRebootSignalHandlers();
+         }
+diff --git a/init/first_stage_mount.cpp b/init/first_stage_mount.cpp
+index 8134a1e..ee98637 100644
+--- a/init/first_stage_mount.cpp
++++ b/init/first_stage_mount.cpp
+@@ -206,7 +206,6 @@ bool FirstStageMount::MountPartition(const Fstab::iterator& begin, bool erase_sa
+     if (begin->fs_mgr_flags.avb) {
+         if (!SetUpDmVerity(&(*begin))) {
+             PLOG(ERROR) << "Failed to setup verity for '" << begin->mount_point << "'";
+-            return false;
+         }
+     } else {
+         LOG(INFO) << "AVB is not enabled, skip verity setup for '" << begin->mount_point << "'";
+diff --git a/init/first_stage_mount_microdroid.cpp b/init/first_stage_mount_microdroid.cpp
+index 7ec5e2a..7f00bda 100644
+--- a/init/first_stage_mount_microdroid.cpp
++++ b/init/first_stage_mount_microdroid.cpp
+@@ -45,6 +45,13 @@ Result<std::unique_ptr<FirstStageMount>> FirstStageMount::Create(const std::stri
+         return fstab.error();
+     }
+ 
++    if (cmdline.find("no_vbmeta") != std::string::npos) {
++        for (auto& part : *fstab) {
++            part.avb_keys = "";
++            part.fs_mgr_flags.avb = false;
++        }
++    }
++
+     return std::make_unique<FirstStageMount>(std::move(*fstab));
+ }
+ 
+-- 
+2.43.0
+

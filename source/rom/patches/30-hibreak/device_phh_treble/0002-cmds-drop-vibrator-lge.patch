@@ -1,0 +1,93 @@
+From 269add499602c725ee93254ef90b3caaa71e60d6 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:45:02 +0100
+Subject: [PATCH] cmds: drop vibrator-lge
+
+Evolution X cnb no longer ships android.hardware.vibrator@1.0 (HIDL), which the
+LGE vibrator interface it uses depends on; LGE devices are not a target.
+---
+ cmds/Android.bp       | 12 -----------
+ cmds/vibrator-lge.cpp | 48 -------------------------------------------
+ 2 files changed, 60 deletions(-)
+ delete mode 100644 cmds/vibrator-lge.cpp
+
+diff --git a/cmds/Android.bp b/cmds/Android.bp
+index 0cd78f6..fbab450 100644
+--- a/cmds/Android.bp
++++ b/cmds/Android.bp
+@@ -37,18 +37,6 @@ cc_binary {
+ 	host_supported: true,
+ }
+ 
+-cc_binary {
+-	name: "vibrator-lge",
+-	srcs: [
+-		"vibrator-lge.cpp",
+-	],
+-	shared_libs: [
+-		"vendor.lge.hardware.vibrator@1.0",
+-		"libutils",
+-		"libhidlbase",
+-	],
+-}
+-
+ cc_binary {
+ 	name: "mtk-sms-fwk-ready",
+ 	srcs: [
+diff --git a/cmds/vibrator-lge.cpp b/cmds/vibrator-lge.cpp
+deleted file mode 100644
+index 5797854..0000000
+--- a/cmds/vibrator-lge.cpp
++++ /dev/null
+@@ -1,48 +0,0 @@
+-#include <iostream>
+-#include <vendor/lge/hardware/vibrator/1.0/IVibratorEx.h>
+-
+-using ::vendor::lge::hardware::vibrator::V1_0::IVibratorEx;
+-using ::android::sp;
+-
+-int main(int argc, char **argv) {
+-	auto svc = IVibratorEx::getService();
+-
+-	auto supportsAmplitude = svc->supportsAmplitudeControl();
+-	if(supportsAmplitude.isOk())
+-		std::cerr << "supportsAmplitudeControl? " << supportsAmplitude << std::endl;
+-
+-	/*
+-public int on(int timeoutMs) throws RemoteException {
+-public int off() throws RemoteException {
+-public int setAmplitude(byte amplitude) throws RemoteException {
+-public void perform(int effect, byte strength, performCallback _hidl_cb) throws RemoteException {
+-public int playEffectWithStrength(ArrayList<Byte> effectData, int effectIndex, int strength) throws RemoteException {
+-*/
+-
+-
+-	if(strcmp(argv[1], "on") == 0) {
+-		int v = 100;
+-		if(argc>=3)
+-			v = atoi(argv[2]);
+-		auto ret = svc->on(v);
+-		if(ret.isOk()) {
+-			android::hardware::vibrator::V1_0::Status r = ret;
+-			std::cout << "vibrator on returned " << (int)r << std::endl;
+-		} else {
+-			std::cerr << "Binder failed request" << std::endl;
+-		}
+-	} else if(strcmp(argv[1], "amplitude") == 0) {
+-		int v = 127;
+-		if(argc>=3)
+-			v = atoi(argv[2]);
+-		auto ret = svc->setAmplitude(v);
+-		if(ret.isOk()) {
+-			android::hardware::vibrator::V1_0::Status r = ret;
+-			std::cout << "vibrator amplitude returned " << (int)r << std::endl;
+-		} else {
+-			std::cerr << "Binder failed request" << std::endl;
+-		}
+-	} else {
+-		std::cerr << "Not supported (yet)" << std::endl;
+-	}
+-}
+-- 
+2.43.0
+

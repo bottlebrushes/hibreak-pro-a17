@@ -1,0 +1,38 @@
+From ef15fb4ba5141c001c6fa42623d133913411d6a1 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 10:06:47 +0100
+Subject: [PATCH] DreamService: restore int setDozeScreenBrightness for
+ reflective callers (HiBreak sleep dream)
+
+---
+ core/java/android/service/dreams/DreamService.java | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/core/java/android/service/dreams/DreamService.java b/core/java/android/service/dreams/DreamService.java
+index 51a0ee454..56bd78819 100644
+--- a/core/java/android/service/dreams/DreamService.java
++++ b/core/java/android/service/dreams/DreamService.java
+@@ -1174,6 +1174,20 @@ public class DreamService extends Service implements Window.Callback {
+         }
+     }
+ 
++    /**
++     * Integer form of {@link #setDozeScreenBrightness(float)} from earlier releases
++     * (0-255, or -1 for the default policy). Kept for apps that call it reflectively,
++     * e.g. the HiBreak e-ink sleep picture dream.
++     *
++     * @hide
++     */
++    @UnsupportedAppUsage
++    public void setDozeScreenBrightness(int brightness) {
++        setDozeScreenBrightness(brightness < 0
++                ? PowerManager.BRIGHTNESS_INVALID_FLOAT
++                : Math.min(brightness, 255) / 255f);
++    }
++
+     /**
+      * Called when this Dream is constructed.
+      */
+-- 
+2.43.0
+

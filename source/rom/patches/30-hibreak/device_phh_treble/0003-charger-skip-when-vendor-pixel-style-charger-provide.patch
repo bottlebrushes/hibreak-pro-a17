@@ -1,0 +1,35 @@
+From e0dde57c47690feec47fad5e338e76cd657ee2ff Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 22:23:26 +0100
+Subject: [PATCH] charger: skip when vendor/pixel-style/charger provides the
+ same modules
+
+Evolution X carries vendor/pixel-style/charger with identical pixel_charger_*
+module names, which made Kati reject duplicate install rules.
+---
+ charger/Android.mk | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/charger/Android.mk b/charger/Android.mk
+index cc18272..59e1574 100644
+--- a/charger/Android.mk
++++ b/charger/Android.mk
+@@ -17,6 +17,9 @@
+ 
+ LOCAL_PATH := $(call my-dir)
+ 
++# Evolution X ships the same pixel_charger_* modules in vendor/pixel-style/charger.
++ifeq ($(wildcard vendor/pixel-style/charger),)
++
+ ### pixel_charger_res_images ###
+ ifneq ($(strip $(LOCAL_CHARGER_NO_UI)),true)
+ define _add-product-charger-image
+@@ -66,3 +69,5 @@ _add-product-charger-animation-file :=
+ _img_modules :=
+ _anim_modules :=
+ endif # LOCAL_CHARGER_NO_UI
++
++endif # vendor/pixel-style/charger
+-- 
+2.43.0
+

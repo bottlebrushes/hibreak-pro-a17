@@ -1,0 +1,42 @@
+From 5a73f3bfaecb7944afaf0761a49a610c4e945c67 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Sun, 25 Oct 2020 23:57:26 +0100
+Subject: [PATCH] Re-implement fnmatch-like behaviour for RRO java-side
+
+T: Also apply to FrameworkParsingPackageUtils (@PeterCxy)
+
+Change-Id: Id38292a9a1453aa87b8401c1fdb390fa4e63c7d1
+---
+ .../pm/parsing/FrameworkParsingPackageUtils.java    | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
+index ac2676236..45729443f 100644
+--- a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
++++ b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
+@@ -228,12 +228,19 @@ public class FrameworkParsingPackageUtils {
+             if (currValue == null) {
+                 return false;
+             }
++            final String value = propValues[i];
+             // 2. Check next prop if expected value is a wildcard.
+-            if ("*".equals(propValues[i])) {
++            if ("*".equals(value)) {
+                 continue;
+             }
+-            // 3. Check if prop is equal to expected value.
+-            if (!currValue.equals(propValues[i])) {
++            // 3. Match fnmatch-like patterns prefixed with '+'.
++            if (value.startsWith("+")) {
++                final java.util.regex.Pattern regex = java.util.regex.Pattern.compile(
++                        value.substring(1).replace("*", ".*"));
++                if (!regex.matcher(currValue).find()) {
++                    return false;
++                }
++            } else if (!currValue.equals(value)) {
+                 return false;
+             }
+         }
+-- 
+2.43.0
+

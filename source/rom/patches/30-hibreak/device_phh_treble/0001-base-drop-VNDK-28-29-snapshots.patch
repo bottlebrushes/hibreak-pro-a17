@@ -1,0 +1,24 @@
+From 6e3a4d114d54b8de7af6c16b92fc0365e17e790b Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:40:32 +0100
+Subject: [PATCH] base: drop VNDK 28/29 snapshots
+
+The HiBreak Pro vendor is VNDK 31; gsi_release.mk already provides 31-34 and the
+v28-v30 prebuilts are not in the Evolution X cnb manifest.
+---
+ base.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/base.mk b/base.mk
+index 56d03d3..c805d47 100644
+--- a/base.mk
++++ b/base.mk
+@@ -263,4 +263,4 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
+ PRODUCT_PRODUCT_PROPERTIES += \
+     persist.settings.large_screen_opt.enabled=true
+ 
+-PRODUCT_EXTRA_VNDK_VERSIONS += 28 29
++# VNDK 28/29 snapshots dropped: the HiBreak Pro vendor is VNDK 31 (gsi_release.mk keeps 31-34).
+-- 
+2.43.0
+

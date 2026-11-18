@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.hibreak.overlay.lightshade" android:versionCode="1" android:versionName="1">
+    <uses-sdk android:minSdkVersion="35" android:targetSdkVersion="35" />
+    <overlay android:targetPackage="android" android:isStatic="true" android:priority="104" />
+    <application android:hasCode="false" android:label="HiBreak light shade colours" />
+</manifest>

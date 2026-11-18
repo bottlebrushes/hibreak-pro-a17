@@ -1,0 +1,62 @@
+From 0c24d496658a7fd3e9541afde06b718175e8f315 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 18 Nov 2026 06:31:32 +0100
+Subject: [PATCH] sleep dream: draw E-ink Shade's pre-rendered lock page first
+ (LockPageProvider), so the first e-ink frame after locking is that page
+
+---
+ sleep-images/AndroidManifest-public.xml |  3 ++-
+ sleep-images/BirdDreamService.java      | 15 +++++++++++++++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/sleep-images/AndroidManifest-public.xml b/sleep-images/AndroidManifest-public.xml
+index 7a5edf7..1097185 100644
+--- a/sleep-images/AndroidManifest-public.xml
++++ b/sleep-images/AndroidManifest-public.xml
+@@ -1,8 +1,9 @@
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="local.codex.hibreakprobe" android:sharedUserId="android.uid.system" android:versionCode="100" android:versionName="hibreak-eink-0.1.0">
++    package="local.codex.hibreakprobe" android:sharedUserId="android.uid.system" android:versionCode="101" android:versionName="hibreak-eink-0.1.1">
+     <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="35" />
+     <uses-permission android:name="android.permission.WRITE_DREAM_STATE" />
+     <uses-permission android:name="android.permission.READ_DREAM_STATE" />
++    <uses-permission android:name="local.eink.shade.permission.LOCK_PAGE" />
+     <application android:label="Sleep images" android:allowBackup="false"
+         android:directBootAware="true" android:defaultToDeviceProtectedStorage="true">
+         <activity android:name=".SleepImagesActivity" android:exported="true" android:label="Sleep images">
+diff --git a/sleep-images/BirdDreamService.java b/sleep-images/BirdDreamService.java
+index d6c1868..16c98da 100644
+--- a/sleep-images/BirdDreamService.java
++++ b/sleep-images/BirdDreamService.java
+@@ -24,6 +24,14 @@ public final class BirdDreamService extends DreamService {
+     private String imageName;
+     private SleepImageDeck.Pick selected;
+     private boolean selectionSaved;
++    private static final android.net.Uri LOCK_PAGE=android.net.Uri.parse("content://local.eink.shade.lockpage/page.png");
++
++    /** The shade's next lock page (LockPageProvider, signature permission), or null if the shade isn't running. */
++    private Bitmap lockPage() {
++        try(java.io.InputStream in=getContentResolver().openInputStream(LOCK_PAGE)) {
++            return in==null ? null : BitmapFactory.decodeStream(in);
++        } catch(Exception e) { return null; }
++    }
+     @Override public void onAttachedToWindow() {
+         super.onAttachedToWindow();
+         stopping=false;
+@@ -31,6 +39,13 @@ public final class BirdDreamService extends DreamService {
+         ImageView image=new ImageView(this);
+         image.setBackgroundColor(Color.WHITE);
+         image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
++        // E-ink Shade's lock page covers this dream as soon as it learns of the lock, ~0.2 s after this draws. Drawing
++        // its pre-rendered picture of that page here makes the first e-ink frame after locking the same page, instead
++        // of a different screen that the shade then replaces.
++        if(bitmap==null) {
++            Bitmap page=lockPage();
++            if(page!=null) { bitmap=page; imageName="eink-shade-lock-page"; image.setScaleType(ImageView.ScaleType.FIT_XY); }
++        }
+         if(bitmap==null && Variant.PUBLIC) {
+             // Public build: only the user's own pictures; a plain note until they pick one.
+             java.util.List<java.io.File> files=SleepImages.list(this);
+-- 
+2.43.0
+

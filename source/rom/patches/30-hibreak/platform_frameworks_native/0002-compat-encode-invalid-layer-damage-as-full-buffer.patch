@@ -1,0 +1,97 @@
+From 184e9e22d8c87e2af1255306f22e67f6b37518ff Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 05:44:31 +0100
+Subject: [PATCH 2/6] compat: encode invalid layer damage as full buffer
+
+---
+ .../CompositionEngine/src/OutputLayer.cpp     | 15 ++++++++++--
+ .../tests/OutputLayerTest.cpp                 | 23 ++++++++++++++++---
+ 2 files changed, 33 insertions(+), 5 deletions(-)
+
+diff --git a/services/surfaceflinger/CompositionEngine/src/OutputLayer.cpp b/services/surfaceflinger/CompositionEngine/src/OutputLayer.cpp
+index 4765bf7..5528d23 100644
+--- a/services/surfaceflinger/CompositionEngine/src/OutputLayer.cpp
++++ b/services/surfaceflinger/CompositionEngine/src/OutputLayer.cpp
+@@ -965,15 +965,26 @@ void OutputLayer::writeOutputIndependentPerFrameStateToHWC(
+                   to_string(error).c_str(), static_cast<int32_t>(error));
+     }
+ 
+-    const Region& surfaceDamage = getState().overrideInfo.buffer
++    Region surfaceDamage = getState().overrideInfo.buffer
+             ? getState().overrideInfo.damageRegion
+             : (getState().hwc->stateOverridden ? Region::INVALID_REGION
+                                                : outputIndependentState.surfaceDamage);
+ 
++    // Legacy composers use INVALID_RECT as full damage, but some interpret an
++    // empty/invalid rectangle list as unchanged. Send explicit buffer bounds.
++    if (surfaceDamage.getBounds() == Rect::INVALID_RECT) {
++        const sp<GraphicBuffer> buffer = getState().overrideInfo.buffer
++                ? getState().overrideInfo.buffer->getBuffer()
++                : outputIndependentState.buffer;
++        if (buffer && buffer->getWidth() > 0 && buffer->getHeight() > 0) {
++            surfaceDamage = Region(Rect(buffer->getWidth(), buffer->getHeight()));
++        }
++    }
++
+     if (auto error = hwcLayer->setSurfaceDamage(surfaceDamage); error != hal::Error::NONE) {
+         ALOGE("[%s] Failed to set surface damage: %s (%d)", getLayerFE().getDebugName(),
+               to_string(error).c_str(), static_cast<int32_t>(error));
+-        outputIndependentState.surfaceDamage.dump(LOG_TAG);
++        surfaceDamage.dump(LOG_TAG);
+     }
+ 
+     // Content-specific per-frame state
+diff --git a/services/surfaceflinger/CompositionEngine/tests/OutputLayerTest.cpp b/services/surfaceflinger/CompositionEngine/tests/OutputLayerTest.cpp
+index 9dc30c0..1b84214 100644
+--- a/services/surfaceflinger/CompositionEngine/tests/OutputLayerTest.cpp
++++ b/services/surfaceflinger/CompositionEngine/tests/OutputLayerTest.cpp
+@@ -1269,13 +1269,30 @@ TEST_F(OutputLayerWriteStateToHWCTest, includesOverrideInfoForSolidColorIfPresen
+                                  /*hasLutsProperties*/ false);
+ }
+ 
++TEST_F(OutputLayerWriteStateToHWCTest, invalidOverrideDamageUsesBufferBounds) {
++    mLayerFEState.compositionType = Composition::DEVICE;
++    includeOverrideInfo();
++    mOutputLayer.editState().overrideInfo.damageRegion = Region::INVALID_REGION;
++
++    expectGeometryCommonCalls(kOverrideDisplayFrame, kOverrideSourceCrop, kOverrideBufferTransform,
++                              kOverrideBlendMode, kOverrideAlpha);
++    expectPerFrameCommonCalls(SimulateUnsupported::None, kOverrideDataspace, kOverrideVisibleRegion,
++                              Region(Rect(4, 5)), kOverrideLayerBrightness);
++    expectSetHdrMetadataAndBufferCalls(kOverrideHwcSlot, kOverrideBuffer, kOverrideFence);
++    expectSetCompositionTypeCall(Composition::DEVICE);
++
++    mOutputLayer.writeStateToHWC(/*includeGeometry*/ true, /*skipLayer*/ false, 0,
++                                 /*zIsOverridden*/ false, /*isPeekingThrough*/ false,
++                                 /*hasLutsProperties*/ false);
++}
++
+ TEST_F(OutputLayerWriteStateToHWCTest, previousOverriddenLayerSendsSurfaceDamage) {
+     mLayerFEState.compositionType = Composition::DEVICE;
+     mOutputLayer.editState().hwc->stateOverridden = true;
+ 
+     expectGeometryCommonCalls();
+     expectPerFrameCommonCalls(SimulateUnsupported::None, kDataspace, kOutputSpaceVisibleRegion,
+-                              Region::INVALID_REGION);
++                              Region(Rect(1, 2)));
+     expectSetHdrMetadataAndBufferCalls();
+     expectSetCompositionTypeCall(Composition::DEVICE);
+ 
+@@ -1292,7 +1309,7 @@ TEST_F(OutputLayerWriteStateToHWCTest, previousSkipLayerSendsUpdatedDeviceCompos
+ 
+     expectGeometryCommonCalls();
+     expectPerFrameCommonCalls(SimulateUnsupported::None, kDataspace, kOutputSpaceVisibleRegion,
+-                              Region::INVALID_REGION);
++                              Region(Rect(1, 2)));
+     expectSetHdrMetadataAndBufferCalls();
+     expectSetCompositionTypeCall(Composition::DEVICE);
+ 
+@@ -1310,7 +1327,7 @@ TEST_F(OutputLayerWriteStateToHWCTest, previousSkipLayerSendsUpdatedClientCompos
+ 
+     expectGeometryCommonCalls();
+     expectPerFrameCommonCalls(SimulateUnsupported::None, kDataspace, kOutputSpaceVisibleRegion,
+-                              Region::INVALID_REGION);
++                              Region(Rect(1, 2)));
+     expectSetHdrMetadataAndBufferCalls();
+     expectSetCompositionTypeCall(Composition::CLIENT);
+ 

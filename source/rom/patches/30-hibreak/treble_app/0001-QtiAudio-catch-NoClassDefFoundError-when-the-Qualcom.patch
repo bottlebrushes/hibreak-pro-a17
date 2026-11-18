@@ -1,0 +1,35 @@
+From 00d3ed16e90880f9794722e3b0a6a6b07668a7af Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 06:27:48 +0100
+Subject: [PATCH] QtiAudio: catch NoClassDefFoundError when the Qualcomm HIDL
+ classes are absent
+
+---
+ app/src/main/java/me/phh/treble/app/QtiAudio.kt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/app/src/main/java/me/phh/treble/app/QtiAudio.kt b/app/src/main/java/me/phh/treble/app/QtiAudio.kt
+index b3d6ecb..127f5d1 100644
+--- a/app/src/main/java/me/phh/treble/app/QtiAudio.kt
++++ b/app/src/main/java/me/phh/treble/app/QtiAudio.kt
+@@ -37,7 +37,7 @@ class QtiAudio: EntryStartup {
+                     val svc = vendor.qti.hardware.radio.am.V1_0.IQcRilAudio.getService(slot)
+                     isQualcommDevice = true
+                     Log.d("PHH", "isQualcommDevice set by vendor.qti.hardware.radio.am HIDL")
+-                } catch (e: Exception) {
++                } catch (e: Throwable) {
+                     Log.d("PHH", "Failed setting vendor.qti.hardware.radio.am $slot cb $e")
+                 }
+ 
+@@ -45,7 +45,7 @@ class QtiAudio: EntryStartup {
+                     val svc = vendor.qti.qcril.am.V1_0.IQcRilAudio.getService(slot)
+                     isQualcommDevice = true
+                     Log.d("PHH", "isQualcommDevice set by vendor.qti.qcril.am HIDL")
+-                } catch (e: Exception) {
++                } catch (e: Throwable) {
+                     Log.d("PHH", "Failed setting vendor.qti.hardware.radio.am $slot cb $e")
+                 }
+             }
+-- 
+2.43.0
+

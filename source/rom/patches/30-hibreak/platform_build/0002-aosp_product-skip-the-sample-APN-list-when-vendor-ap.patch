@@ -1,0 +1,29 @@
+From e3673872b25cbf3e096cc61dbe4fe84ff0e7ff26 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 22:27:25 +0100
+Subject: [PATCH] aosp_product: skip the sample APN list when vendor/apn
+ provides one
+
+treble_* products don't set LINEAGE_BUILD, so the sample copy clashed with
+vendor/apn's apns-conf.xml install rule.
+---
+ target/product/aosp_product.mk | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/target/product/aosp_product.mk b/target/product/aosp_product.mk
+index 99a3759..7e0a097 100644
+--- a/target/product/aosp_product.mk
++++ b/target/product/aosp_product.mk
+@@ -40,7 +40,8 @@ PRODUCT_PACKAGES += \
+ 
+ # Telephony:
+ #   Provide a APN configuration to GSI product
+-ifeq ($(LINEAGE_BUILD),)
++# vendor/apn (Lineage) installs a merged apns-conf.xml; the sample copy would clash with it.
++ifeq ($(LINEAGE_BUILD)$(wildcard vendor/apn/Android.bp),)
+ PRODUCT_COPY_FILES += \
+     device/sample/etc/apns-full-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
+ endif
+-- 
+2.43.0
+

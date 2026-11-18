@@ -1,0 +1,51 @@
+From 024e6e0d52ae76dac753c1ca2f3163c8cb8303e6 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 01:49:50 +0100
+Subject: [PATCH] pthread: no stack-top guard gap for /vendor and /odm
+ executables
+
+Android 16+ puts a random PROT_NONE gap above every thread stack. Legacy
+vendor code built for Android 15 can read slightly past the top of its
+stack: the MicroArray fingerprint HAL on the Bigme HiBreak Pro rounds TEE
+temp buffers up to 1 KiB, so tkcore's copy_from_user of a buffer in an
+outer frame faults and TEEC_InvokeCommand fails with EINVAL (interrupt
+calibration never completes and enrollment never starts). Keep the
+Android 15 layout (stack directly below pthread_internal_t) for /vendor
+and /odm executables.
+---
+ libc/bionic/pthread_create.cpp | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/libc/bionic/pthread_create.cpp b/libc/bionic/pthread_create.cpp
+index a8d404f..5aedbdf 100644
+--- a/libc/bionic/pthread_create.cpp
++++ b/libc/bionic/pthread_create.cpp
+@@ -223,6 +223,12 @@ int __init_thread(pthread_internal_t* thread) {
+ // optionally a stack. Static TLS includes ELF TLS segments and the bionic_tls
+ // struct.
+ //
++static bool __is_legacy_vendor_executable() {
++  // getprogname() is only the basename; init_progname is the full argv[0] the process was started with.
++  const char* name = __libc_shared_globals()->init_progname;
++  return name != nullptr && (strncmp(name, "/vendor/", 8) == 0 || strncmp(name, "/odm/", 5) == 0);
++}
++
+ // The stack_guard_size must be a multiple of the page_size().
+ ThreadMapping __allocate_thread_mapping(size_t stack_size, size_t stack_guard_size) {
+   const StaticTlsLayout& layout = __libc_shared_globals()->static_tls_layout;
+@@ -253,6 +259,12 @@ ThreadMapping __allocate_thread_mapping(size_t stack_size, size_t stack_guard_si
+   size_t gap_size =
+       __builtin_align_up(__libc_arc4random_uniform_or_zero(max_gap_size), page_size());
+   if (stack_size > 0 && gap_size == 0) gap_size = page_size();
++  // Legacy vendor code built for Android <= 15 can read a little past the top of its thread
++  // stack (e.g. the MicroArray fingerprint HAL rounds TEE temp buffers up to 1 KiB, so a buffer
++  // in an outer frame is copied beyond the stack top). Without a gap that memory is the readable
++  // pthread_internal_t, as on Android 15; with the gap the kernel copy faults and every such TEE
++  // call fails with EINVAL. Keep the Android 15 layout for /vendor and /odm executables.
++  if (__is_legacy_vendor_executable()) gap_size = 0;
+ 
+   // Allocate in order: stack guard, stack, (random) guard page(s), pthread_internal_t, static TLS, libgen buffers, guard page.
+   size_t mmap_size;
+-- 
+2.43.0
+

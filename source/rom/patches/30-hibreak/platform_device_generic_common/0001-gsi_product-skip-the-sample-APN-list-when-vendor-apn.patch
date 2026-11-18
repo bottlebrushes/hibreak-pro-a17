@@ -1,0 +1,28 @@
+From 4151c0c5c622c1bf50daed1414ad659ef3096633 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 22:27:25 +0100
+Subject: [PATCH] gsi_product: skip the sample APN list when vendor/apn
+ provides one
+
+Change-Id: Ie0cd90a40a9aa52c6fd40110212e74debf0322bb
+---
+ gsi_product.mk | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/gsi_product.mk b/gsi_product.mk
+index 1356511..3077fb7 100644
+--- a/gsi_product.mk
++++ b/gsi_product.mk
+@@ -35,7 +35,8 @@ PRODUCT_PRODUCT_PROPERTIES += \
+     ro.config.notification_sound?=pixiedust.ogg \
+     ro.com.android.dataroaming?=true \
+ 
+-ifeq ($(LINEAGE_BUILD),)
++# vendor/apn (Lineage) installs a merged apns-conf.xml; the sample copy would clash with it.
++ifeq ($(LINEAGE_BUILD)$(wildcard vendor/apn/Android.bp),)
+ PRODUCT_COPY_FILES += \
+     device/sample/etc/apns-full-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
+ endif
+-- 
+2.43.0
+

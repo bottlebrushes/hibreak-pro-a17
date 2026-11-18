@@ -1,0 +1,26 @@
+From f5682954d06b5f0a8d7e24d2ea03fcb3530bcdbc Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 06:27:55 +0100
+Subject: [PATCH] aosp_arm64: leave out AVF (no pKVM/vsock/EROFS on HiBreak
+ 4.19)
+
+---
+ target/product/aosp_arm64.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/target/product/aosp_arm64.mk b/target/product/aosp_arm64.mk
+index 5052404..aa4d51a 100644
+--- a/target/product/aosp_arm64.mk
++++ b/target/product/aosp_arm64.mk
+@@ -44,7 +44,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_system_ext.mk)
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/telephony_system_ext.mk)
+ 
+ # pKVM
+-$(call inherit-product-if-exists, packages/modules/Virtualization/apex/product_packages.mk)
++# AVF left out for HiBreak (no pKVM/vsock/EROFS on its 4.19 kernel).
+ 
+ #
+ # All components inherited here go to product image
+-- 
+2.43.0
+

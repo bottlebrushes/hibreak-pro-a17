@@ -1,0 +1,42 @@
+From 1a5e8a5aa665cac26d67f791a8a8190449a90074 Mon Sep 17 00:00:00 2001
+From: "Christopher A. Williamson" <contact@chrisaw.io>
+Date: Fri, 2 Oct 2026 10:08:53 +0100
+Subject: [PATCH] ion: restore node label and permissions for legacy grallocs
+
+---
+ base.mk | 3 ++-
+ ion.rc  | 8 ++++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+ create mode 100644 ion.rc
+
+diff --git a/base.mk b/base.mk
+index c805d47..b735fc6 100644
+--- a/base.mk
++++ b/base.mk
+@@ -150,7 +150,8 @@ PRODUCT_PACKAGES += \
+     uevent
+ 
+ PRODUCT_COPY_FILES += \
+-    device/phh/treble/files/adbd.rc:system/etc/init/adbd.rc
++    device/phh/treble/files/adbd.rc:system/etc/init/adbd.rc \
++    device/phh/treble/ion.rc:system/etc/init/ion.rc
+ 
+ # MTK incoming SMS fix
+ PRODUCT_PACKAGES += \
+diff --git a/ion.rc b/ion.rc
+new file mode 100644
+index 0000000..b277579
+--- /dev/null
++++ b/ion.rc
+@@ -0,0 +1,8 @@
++# legacy vendor grallocs (e.g. mtk) still allocate through /dev/ion; the
++# platform dma-buf migration dropped both the file label and any lenient
++# node permissions, so on gsi boots the allocator can fail to open the
++# node with a silent EPERM -- buffer allocation fails and renderengine
++# then aborts on the non-gpu-writable buffer, crash looping the boot.
++on post-fs
++    restorecon /dev/ion
++    chmod 0666 /dev/ion
+-- 
+2.43.0
+

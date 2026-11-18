@@ -1,0 +1,29 @@
+From a6f44d729abe242c9b1ce1f297fd03e4f032d131 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 05:42:13 +0100
+Subject: [PATCH] gsi_arm64: leave out AVF (no pKVM/vsock/EROFS on HiBreak
+ 4.19)
+
+Change-Id: I07222f78b459dc84d1564e86ceed365be3514678
+---
+ gsi_arm64.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gsi_arm64.mk b/gsi_arm64.mk
+index 9984884..f8c425d 100644
+--- a/gsi_arm64.mk
++++ b/gsi_arm64.mk
+@@ -38,8 +38,8 @@ MODULE_BUILD_FROM_SOURCE := true
+ #
+ $(call inherit-product, device/generic/common/gsi_system_ext.mk)
+ 
+-# pKVM
+-$(call inherit-product, packages/modules/Virtualization/apex/product_packages.mk)
++# pKVM / AVF: left out. HiBreak 4.19 kernel has no pKVM, vsock or EROFS; AVF's
++# traced.relay_producer_port=vsock://... makes traced exit at start.
+ 
+ #
+ # All components inherited here go to product image
+-- 
+2.43.0
+

@@ -1,0 +1,16 @@
+<resources>
+    <integer name="config_defaultNightMode">1</integer>
+    <!-- Keep transition and animator defaults suitable for an animation-free e-ink UI. -->
+    <item name="config_appTransitionAnimationDurationScaleDefault"
+        format="float" type="dimen">0.01</item>
+    <bool name="config_disableLockscreenByDefault">true</bool>
+    <!-- Evolution X's common overlay disables dreams by default. Match the working A15
+         HiBreak behavior: dreams enabled, dock activation on, charge activation off. -->
+    <bool name="config_dreamsEnabledByDefault">true</bool>
+    <bool name="config_dreamsActivatedOnDockByDefault">true</bool>
+    <bool name="config_dreamsActivatedOnSleepByDefault">false</bool>
+    <!-- Start the doze component as part of the normal screen-off transition. -->
+    <bool name="config_dozeAfterScreenOffByDefault">false</bool>
+    <!-- E-ink Shade ringer and Do Not Disturb tiles need notification-policy access on a fresh install. -->
+    <string name="config_defaultDndAccessPackages" translatable="false">com.android.camera2:local.eink.shade</string>
+</resources>

@@ -1,0 +1,46 @@
+From b3d324a500687ef118f5d4a804cb9c099435cc2d Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 18 Nov 2026 07:16:28 +0100
+Subject: [PATCH] release: require adb authorization, USB debugging off by
+ default
+
+TrebleDroid defaults to ro.adb.secure=0 and persist.sys.usb.config=adb. Android init keeps the
+first value of any adb/secure property it loads, so system/build.prop wins over LineageOS
+ro.adb.secure=1 in system_ext. Public builds must ask before a computer gets adb access.
+---
+ base.mk     | 3 +--
+ system.prop | 2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/base.mk b/base.mk
+index e1a2c1c..9ba5150 100644
+--- a/base.mk
++++ b/base.mk
+@@ -33,13 +33,12 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+     ro.build.version.all_codenames=$(PLATFORM_VERSION_ALL_CODENAMES) \
+     ro.build.version.release=$(PLATFORM_VERSION) \
+     ro.build.version.security_patch=$(PLATFORM_SECURITY_PATCH) \
+-    ro.adb.secure=0 \
++    ro.adb.secure=1 \
+     ro.logd.auditd=true \
+     ro.logd.kernel=true \
+ 
+ # Huawei HiSuite (also other OEM custom programs I guess) it's of no use in AOSP builds
+ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+-    persist.sys.usb.config=adb \
+     ro.cust.cdrom=/dev/null
+ 
+ # VNDK config files
+diff --git a/system.prop b/system.prop
+index f3c0c45..4717bab 100644
+--- a/system.prop
++++ b/system.prop
+@@ -1,4 +1,4 @@
+-ro.adb.secure=0
++ro.adb.secure=1
+ #Some devices have sdcardfs kernel panicing on 8.0
+ #Disable for everyone for the moment
+ ro.sys.sdcardfs=0
+-- 
+2.43.0
+

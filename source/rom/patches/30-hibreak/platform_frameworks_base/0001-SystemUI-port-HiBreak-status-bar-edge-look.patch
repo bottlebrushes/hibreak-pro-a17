@@ -1,0 +1,120 @@
+From a15f790ffd7f66ea23e847deceb8729716bf1f14 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 07:31:53 +0100
+Subject: [PATCH 1/3] SystemUI: port HiBreak status bar edge look
+
+---
+ packages/SystemUI/res/values/colors.xml |  7 ++++---
+ packages/SystemUI/res/values/dimens.xml | 19 ++++++++-----------
+ packages/SystemUI/res/values/styles.xml |  2 +-
+ 3 files changed, 13 insertions(+), 15 deletions(-)
+
+diff --git a/packages/SystemUI/res/values/colors.xml b/packages/SystemUI/res/values/colors.xml
+index d7da5b050..3823203cd 100644
+--- a/packages/SystemUI/res/values/colors.xml
++++ b/packages/SystemUI/res/values/colors.xml
+@@ -23,7 +23,7 @@
+     <color name="system_bar_background_transparent">#00000000</color>
+     <color name="qs_tile_divider">#29ffffff</color><!-- 16% white -->
+     <color name="qs_detail_button_white">#B3FFFFFF</color><!-- 70% white -->
+-    <color name="status_bar_clock_color">#FFFFFFFF</color>
++    <color name="status_bar_clock_color">#FF000000</color>
+     <!-- The main FG tint for shade header items -->
+     <color name="shade_header_text_color">#FF000000</color>
+     <!-- The main BG tint for shade header items -->
+@@ -120,8 +120,9 @@
+ 
+     <color name="screen_pinning_request_window_bg">#80000000</color>
+ 
+-    <color name="dark_mode_icon_color_dual_tone_background">#3d000000</color>
+-    <color name="dark_mode_icon_color_dual_tone_fill">#7a000000</color>
++    <color name="dark_mode_icon_color_single_tone">#FF000000</color>
++    <color name="dark_mode_icon_color_dual_tone_background">#4D000000</color>
++    <color name="dark_mode_icon_color_dual_tone_fill">#FF000000</color>
+ 
+     <color name="light_mode_icon_color_dual_tone_background">#4dffffff</color>
+     <color name="light_mode_icon_color_dual_tone_fill">#ffffff</color>
+diff --git a/packages/SystemUI/res/values/dimens.xml b/packages/SystemUI/res/values/dimens.xml
+index 89632a093..6e575fbdd 100644
+--- a/packages/SystemUI/res/values/dimens.xml
++++ b/packages/SystemUI/res/values/dimens.xml
+@@ -152,9 +152,9 @@
+     <dimen name="status_bar_icon_container_height">@dimen/status_bar_icon_size_sp</dimen>
+ 
+     <!-- New sp height of notification icons in the status bar -->
+-    <dimen name="status_bar_icon_size_sp">@*android:dimen/status_bar_icon_size_sp</dimen>
++    <dimen name="status_bar_icon_size_sp">25sp</dimen>
+     <!-- Original dp height of notification icons in the status bar -->
+-    <dimen name="status_bar_icon_size">@*android:dimen/status_bar_icon_size</dimen>
++    <dimen name="status_bar_icon_size">25dp</dimen>
+     <dimen name="status_bar_bindable_icon_size">20sp</dimen>
+     <dimen name="status_bar_bindable_icon_padding">2sp</dimen>
+ 
+@@ -162,11 +162,10 @@
+     <dimen name="status_bar_horizontal_padding">2.5sp</dimen>
+ 
+     <!-- Height of the battery icon in the status bar. -->
+-    <dimen name="status_bar_battery_icon_height">13.0sp</dimen>
+-
++    <dimen name="status_bar_battery_icon_height">15sp</dimen>
+     <!-- Width of the battery icon in the status bar. The battery drawable assumes a 12x20 canvas,
+     so the width of the icon should be 13.0sp * (12.0 / 20.0) -->
+-    <dimen name="status_bar_battery_icon_width">7.8sp</dimen>
++    <dimen name="status_bar_battery_icon_width">9sp</dimen>
+ 
+     <!-- Original canvas is 24x14. These dimens reflect that ratio, with 12sp height instead  -->
+     <dimen name="status_bar_battery_unified_icon_width">20.6sp</dimen>
+@@ -179,7 +178,7 @@
+     <dimen name="status_bar_battery_extra_vertical_spacing">1sp</dimen>
+ 
+     <!-- The font size for the clock in the status bar. -->
+-    <dimen name="status_bar_clock_size">14sp</dimen>
++    <dimen name="status_bar_clock_size">16sp</dimen>
+ 
+     <!-- The starting padding for the clock in the status bar. -->
+     <dimen name="status_bar_clock_starting_padding">4dp</dimen>
+@@ -203,7 +202,7 @@
+     <dimen name="status_bar_wifi_inout_container_size">17sp</dimen>
+     <!-- Size of the view displaying the wifi signal icon in the status bar. This value should
+         match the core/status_bar_system_icon_size and change to sp unit -->
+-    <dimen name="status_bar_wifi_signal_size">15sp</dimen>
++    <dimen name="status_bar_wifi_signal_size">17sp</dimen>
+     <dimen name="status_bar_wifi_signal_height_updated">12sp</dimen>
+ 
+     <!-- Size of the view displaying the mobile inout icon in the status bar. -->
+@@ -474,7 +473,7 @@
+     <dimen name="status_bar_padding_start">4dp</dimen>
+ 
+     <!-- the padding on the end of the statusbar -->
+-    <dimen name="status_bar_padding_end">4dp</dimen>
++    <dimen name="status_bar_padding_end">0dp</dimen>
+ 
+     <!-- the padding on the top of the statusbar (usually 0) -->
+     <dimen name="status_bar_padding_top">0dp</dimen>
+@@ -690,9 +689,7 @@
+     <!-- The maximum width of the navigation bar ripples. -->
+     <dimen name="key_button_ripple_max_width">95dp</dimen>
+ 
+-    <dimen name="rounded_corner_content_padding">
+-        @*android:dimen/rounded_corner_content_padding
+-    </dimen>
++    <dimen name="rounded_corner_content_padding">0dp</dimen>
+ 
+     <dimen name="navigation_key_padding">0dp</dimen>
+ 
+diff --git a/packages/SystemUI/res/values/styles.xml b/packages/SystemUI/res/values/styles.xml
+index 29270dca2..651499f33 100644
+--- a/packages/SystemUI/res/values/styles.xml
++++ b/packages/SystemUI/res/values/styles.xml
+@@ -19,7 +19,7 @@
+ 
+     <style name="TextAppearance.StatusBar.Default" parent="@*android:style/TextAppearance.StatusBar.Icon">
+         <item name="android:textSize">@dimen/status_bar_clock_size</item>
+-        <item name="android:fontFamily">"variable-label-large-emphasized"</item>
++        <item name="android:fontFamily">@*android:string/config_regularFontFamily</item>
+         <item name="android:textColor">@color/status_bar_clock_color</item>
+     </style>
+ 
+-- 
+2.43.0
+

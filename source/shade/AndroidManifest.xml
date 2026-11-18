@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="local.eink.shade" android:versionCode="8" android:versionName="1.7">
+  <uses-sdk android:minSdkVersion="35" android:targetSdkVersion="35" />
+  <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+  <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+  <uses-permission android:name="android.permission.STATUS_BAR" />
+  <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+  <uses-permission android:name="android.permission.NETWORK_SETTINGS" />
+  <uses-permission android:name="android.permission.DEVICE_POWER" />
+  <uses-permission android:name="android.permission.POWER_SAVER" />
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+  <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+  <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+  <uses-permission android:name="android.permission.NFC" />
+  <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+  <uses-permission android:name="android.permission.VIBRATE" />
+  <uses-permission android:name="android.permission.SET_WALLPAPER" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="org.isoron.uhabits.permission.READ_EINK_HABITS" />
+  <uses-permission android:name="android.permission.READ_CALENDAR" />
+  <uses-permission android:name="android.permission.ACCESS_KEYGUARD_SECURE_STORAGE" />
+  <uses-permission android:name="android.permission.CONTROL_KEYGUARD" />
+  <uses-permission android:name="android.permission.INJECT_EVENTS" />
+  <uses-permission android:name="android.permission.MANAGE_NOTIFICATION_LISTENERS" />
+  <uses-permission android:name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE" />
+  <!-- the sleep dream (platform-signed) reads the pre-rendered lock page, so its first frame already is our page -->
+  <permission android:name="local.eink.shade.permission.LOCK_PAGE" android:protectionLevel="signature" />
+  <!-- each launcher icon has its own task, so one icon never brings back another screen of this app -->
+  <application android:label="E-ink Shade" android:icon="@drawable/i_manage" android:allowBackup="false">
+    <service android:name=".ShadeService" android:exported="true"
+        android:label="E-ink Shade"
+        android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+      <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
+      <meta-data android:name="android.accessibilityservice" android:resource="@xml/shade_service" />
+    </service>
+    <service android:name=".NotifService" android:exported="true"
+        android:label="E-ink Shade notifications"
+        android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+      <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>
+    </service>
+    <receiver android:name=".WallpaperReceiver" android:exported="true" />
+    <provider android:name=".LockPageProvider" android:authorities="local.eink.shade.lockpage" android:exported="true"
+        android:readPermission="local.eink.shade.permission.LOCK_PAGE" />
+    <activity android:name=".ShadeSettingsActivity" android:exported="true" android:taskAffinity="local.eink.shade.settings" android:label="Notification shade"
+        android:icon="@drawable/i_manage" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <intent-filter android:priority="1">
+        <action android:name="com.android.settings.action.IA_SETTINGS" />
+      </intent-filter>
+      <meta-data android:name="com.android.settings.category" android:value="com.android.settings.category.ia.homepage" />
+      <meta-data android:name="com.android.settings.title" android:value="Notification shade &amp; lock screen" />
+      <meta-data android:name="com.android.settings.summary" android:value="Quick settings order, front light, lock screen styles" />
+      <meta-data android:name="com.android.settings.icon" android:resource="@drawable/i_manage" />
+      <meta-data android:name="com.android.settings.order" android:value="-61" />
+    </activity>
+    <activity android:name=".LockSettingsActivity" android:exported="true" android:taskAffinity="local.eink.shade.lock" android:label="Lock screen"
+        android:icon="@drawable/i_lock" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <activity android:name=".WeatherActivity" android:exported="true" android:taskAffinity="local.eink.shade.weather" android:label="Weather"
+        android:icon="@drawable/i_weather" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <receiver android:name=".WeatherWidget" android:exported="true" android:label="Weather">
+      <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/weather_widget" />
+    </receiver>
+    <activity android:name=".CalendarActivity" android:exported="true" android:taskAffinity="local.eink.shade.calendar" android:label="Calendar"
+        android:icon="@drawable/i_calendar" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <receiver android:name=".CalendarWidget" android:exported="true" android:label="Calendar">
+      <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/calendar_widget" />
+    </receiver>
+  </application>
+</manifest>

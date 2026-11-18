@@ -1,0 +1,280 @@
+--- a/res/layout/widget_checkmark.xml
++++ b/res/layout/widget_checkmark.xml
+@@ -5,1 +5,1 @@
+-    <TextView android:textSize="12.0sp" android:textColor="@color/white" android:ellipsize="end" android:gravity="center" android:id="@id/label" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="6.0dip" android:layout_marginBottom="4.0dip" android:maxLines="2" android:scrollHorizontally="true" android:layout_weight="0.1" android:fontFamily="sans-serif-condensed" android:breakStrategy="balanced" />
++    <TextView android:textSize="11.0sp" android:textColor="@color/white" android:ellipsize="end" android:gravity="center" android:id="@id/label" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="2.0dip" android:layout_marginBottom="4.0dip" android:maxLines="2" android:scrollHorizontally="true" android:layout_weight="0.1" android:fontFamily="sans-serif-medium" android:letterSpacing="0.01" android:breakStrategy="simple" android:hyphenationFrequency="none" />
+--- a/res/values/arrays.xml
++++ b/res/values/arrays.xml
+@@ -10,52 +10,52 @@
+         <item>@string/toggle</item>
+     </string-array>
+     <array name="darkPalette">
+-        <item>@color/red_200</item>
+-        <item>@color/deep_orange_200</item>
+-        <item>@color/orange_200</item>
+-        <item>@color/amber_100</item>
+-        <item>@color/yellow_200</item>
+-        <item>@color/lime_200</item>
+-        <item>@color/light_green_200</item>
+-        <item>@color/green_A200</item>
+-        <item>@color/teal_200</item>
+-        <item>@color/cyan_200</item>
+-        <item>@color/light_blue_200</item>
+-        <item>@color/blue_300</item>
+-        <item>@color/indigo_200</item>
+-        <item>@color/deep_purple_200</item>
+-        <item>@color/purple_200</item>
+-        <item>@color/pink_200</item>
+-        <item>@color/brown_200</item>
+-        <item>@color/grey_100</item>
+-        <item>@color/grey_300</item>
+-        <item>@color/grey_500</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
+     </array>
+     <string-array name="hints">
+         <item>@string/hint_drag</item>
+         <item>@string/hint_landscape</item>
+     </string-array>
+     <array name="lightPalette">
+-        <item>@color/red_700</item>
+-        <item>@color/deep_orange_700</item>
+-        <item>@color/orange_700</item>
+-        <item>@color/amber_800</item>
+-        <item>@color/yellow_800</item>
+-        <item>@color/lime_700</item>
+-        <item>@color/light_green_600</item>
+-        <item>@color/green_700</item>
+-        <item>@color/teal_600</item>
+-        <item>@color/cyan_600</item>
+-        <item>@color/light_blue_600</item>
+-        <item>@color/blue_700</item>
+-        <item>@color/indigo_700</item>
+-        <item>@color/deep_purple_600</item>
+-        <item>@color/purple_600</item>
+-        <item>@color/pink_600</item>
+-        <item>@color/brown_700</item>
+-        <item>@color/grey_800</item>
+-        <item>@color/grey_600</item>
+-        <item>@color/grey_500</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
+     </array>
+     <string-array name="snooze_picker_names">
+         <item>@string/interval_15_minutes</item>
+@@ -91,26 +91,26 @@
+         <item>@string/year</item>
+     </string-array>
+     <array name="transparentWidgetPalette">
+-        <item>@color/red_800</item>
+-        <item>@color/deep_orange_800</item>
+-        <item>@color/orange_800</item>
+-        <item>@color/amber_800</item>
+-        <item>@color/yellow_800</item>
+-        <item>@color/lime_800</item>
+-        <item>@color/light_green_600</item>
+-        <item>@color/green_700</item>
+-        <item>@color/teal_700</item>
+-        <item>@color/cyan_700</item>
+-        <item>@color/light_blue_700</item>
+-        <item>@color/blue_800</item>
+-        <item>@color/indigo_800</item>
+-        <item>@color/deep_purple_700</item>
+-        <item>@color/purple_700</item>
+-        <item>@color/pink_700</item>
+-        <item>@color/brown_800</item>
+-        <item>@color/black_aa</item>
+-        <item>@color/black_aa</item>
+-        <item>@color/black_aa</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
++        <item>@color/black</item>
+     </array>
+     <string-array name="widget_opacity_entries">
+         <item>100%</item>
+--- a/res/values/styles.xml
++++ b/res/values/styles.xml
+@@ -6902,11 +6902,11 @@
+         <item name="statusBarBackground">#000000</item>
+     </style>
+     <style name="WidgetTheme" parent="@style/AppBaseThemeDark">
+-        <item name="cardBgColor">@color/grey_850</item>
++        <item name="cardBgColor">@color/white</item>
+         <item name="contrast0">@color/white</item>
+-        <item name="contrast100">@color/white</item>
+-        <item name="contrast20">@color/white_a0</item>
+-        <item name="contrast60">@color/white_aa</item>
++        <item name="contrast100">@color/black</item>
++        <item name="contrast20">@color/grey_400</item>
++        <item name="contrast60">@color/black</item>
+         <item name="contrast80">@color/grey_800</item>
+         <item name="palette">@array/transparentWidgetPalette</item>
+         <item name="widgetShadowAlpha">0.0</item>
+--- a/smali/org/isoron/uhabits/widgets/views/CheckmarkWidgetView.smali
++++ b/smali/org/isoron/uhabits/widgets/views/CheckmarkWidgetView.smali
+@@ -384,6 +384,8 @@
+ 
+     :cond_0
+     const/4 v1, 0x1
++
++    const/4 v1, 0x0
+ 
+     invoke-virtual {v0, v1}, Lorg/isoron/uhabits/activities/common/views/RingView;->setIsTransparencyEnabled(Z)V
+ 
+@@ -411,6 +413,9 @@
+ 
+     move-result v0
+ 
++    const/high16 v0, -0x1000000
++
++
+     iput v0, p0, Lorg/isoron/uhabits/widgets/views/CheckmarkWidgetView;->activeColor:I
+ 
+     const/4 v0, 0x2
+@@ -888,6 +893,8 @@
+     .locals 0
+ 
+     .line 45
++    const/high16 p1, -0x1000000
++
+     iput p1, p0, Lorg/isoron/uhabits/widgets/views/CheckmarkWidgetView;->activeColor:I
+ 
+     return-void
+--- a/smali/org/isoron/uhabits/widgets/views/HabitWidgetView.smali
++++ b/smali/org/isoron/uhabits/widgets/views/HabitWidgetView.smali
+@@ -228,8 +228,10 @@
+ 
+     move-result v3
+ 
+-    const/high16 v5, 0x41900000    # 18.0f
++    const/4 v3, 0x0
+ 
++    const/high16 v5, 0x41400000    # 12.0f
++
+     .line 72
+     invoke-static {v0, v5}, Lorg/isoron/uhabits/utils/InterfaceUtils;->dpToPixels(Landroid/content/Context;F)F
+ 
+@@ -255,6 +257,33 @@
+ 
+     invoke-direct {v8, v0}, Landroid/graphics/drawable/ShapeDrawable;-><init>(Landroid/graphics/drawable/shapes/Shape;)V
+ 
++    invoke-virtual {v8}, Landroid/graphics/drawable/ShapeDrawable;->getPaint()Landroid/graphics/Paint;
++    move-result-object v11
++    const/high16 v12, -0x1000000
++    invoke-virtual {v11, v12}, Landroid/graphics/Paint;->setColor(I)V
++    const/4 v12, 0x1
++    invoke-virtual {v11, v12}, Landroid/graphics/Paint;->setAntiAlias(Z)V
++    new-instance v9, Landroid/graphics/drawable/shapes/RoundRectShape;
++    invoke-direct {v9, v5, v6, v6}, Landroid/graphics/drawable/shapes/RoundRectShape;-><init>([FLandroid/graphics/RectF;[F)V
++    new-instance v10, Landroid/graphics/drawable/ShapeDrawable;
++    invoke-direct {v10, v9}, Landroid/graphics/drawable/ShapeDrawable;-><init>(Landroid/graphics/drawable/shapes/Shape;)V
++    invoke-virtual {v10}, Landroid/graphics/drawable/ShapeDrawable;->getPaint()Landroid/graphics/Paint;
++    move-result-object v7
++    iput-object v7, p0, Lorg/isoron/uhabits/widgets/views/HabitWidgetView;->backgroundPaint:Landroid/graphics/Paint;
++    invoke-virtual {v7, v12}, Landroid/graphics/Paint;->setAntiAlias(Z)V
++    div-int/lit8 v12, v2, 0x2
++    add-int/2addr v12, v2
++    new-instance v9, Landroid/graphics/drawable/InsetDrawable;
++    invoke-direct {v9, v10, v12}, Landroid/graphics/drawable/InsetDrawable;-><init>(Landroid/graphics/drawable/Drawable;I)V
++    const/4 v10, 0x2
++    new-array v12, v10, [Landroid/graphics/drawable/Drawable;
++    const/4 v10, 0x0
++    aput-object v8, v12, v10
++    const/4 v10, 0x1
++    aput-object v9, v12, v10
++    new-instance v8, Landroid/graphics/drawable/LayerDrawable;
++    invoke-direct {v8, v12}, Landroid/graphics/drawable/LayerDrawable;-><init>([Landroid/graphics/drawable/Drawable;)V
++
+     sub-int v0, v1, v2
+ 
+     .line 77
+@@ -262,8 +291,10 @@
+ 
+     move-result v9
+ 
+-    add-int v11, v1, v2
++    mul-int/lit8 v9, v1, 0x2
+ 
++    move v11, v9
++
+     .line 79
+     new-instance v7, Landroid/graphics/drawable/InsetDrawable;
+ 
+@@ -276,12 +307,8 @@
+     iput-object v7, p0, Lorg/isoron/uhabits/widgets/views/HabitWidgetView;->background:Landroid/graphics/drawable/InsetDrawable;
+ 
+     .line 86
+-    invoke-virtual {v8}, Landroid/graphics/drawable/ShapeDrawable;->getPaint()Landroid/graphics/Paint;
++    iget-object v0, p0, Lorg/isoron/uhabits/widgets/views/HabitWidgetView;->backgroundPaint:Landroid/graphics/Paint;
+ 
+-    move-result-object v0
+-
+-    iput-object v0, p0, Lorg/isoron/uhabits/widgets/views/HabitWidgetView;->backgroundPaint:Landroid/graphics/Paint;
+-
+     if-eqz v0, :cond_0
+ 
+     int-to-float v1, v1
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -7,2 +7,3 @@
+     <permission android:name="org.isoron.uhabits.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="signature"/>
++    <permission android:name="org.isoron.uhabits.permission.READ_EINK_HABITS" android:protectionLevel="signature|privileged"/>
+     <uses-permission android:name="org.isoron.uhabits.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+@@ -142,3 +142,4 @@
+         </receiver>
++        <provider android:authorities="org.isoron.uhabits.eink" android:exported="true" android:name="org.isoron.uhabits.eink.HabitsProvider" android:readPermission="org.isoron.uhabits.permission.READ_EINK_HABITS"/>
+     </application>
+ </manifest>

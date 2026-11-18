@@ -1,0 +1,68 @@
+From 3b9e28b8bc9f14fc16c157e9f912ed8939cbe296 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 07:33:21 +0100
+Subject: [PATCH] SystemUI: port HiBreak light quick settings look
+
+---
+ packages/SystemUI/res/values/styles.xml | 38 ++++++++++++-------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
+
+diff --git a/packages/SystemUI/res/values/styles.xml b/packages/SystemUI/res/values/styles.xml
+index 27d0b5972..692c50350 100644
+--- a/packages/SystemUI/res/values/styles.xml
++++ b/packages/SystemUI/res/values/styles.xml
+@@ -519,32 +519,32 @@
+         <item name="containerStyle">@style/AuthNonBioCredentialPinPasswordContainerStyle</item>
+     </style>
+ 
+-    <style name="Theme.SystemUI.QuickSettings" parent="@*android:style/Theme.DeviceDefault">
++    <style name="Theme.SystemUI.QuickSettings" parent="@android:style/Theme.DeviceDefault.Light">
+         <item name="isQsTheme">true</item>
+         <item name="lightIconTheme">@style/QSIconTheme</item>
+         <item name="darkIconTheme">@style/QSIconTheme</item>
+-        <item name="android:colorError">@*android:color/error_color_material_dark</item>
++        <item name="android:colorError">@*android:color/error_color_material_light</item>
+         <item name="android:windowIsFloating">true</item>
+         <item name="android:homeAsUpIndicator">@drawable/ic_arrow_back</item>
+-
+-        <item name="surfaceBright">@color/materialColorSurfaceBright</item>
++        <item name="surfaceBright">#FFFFFFFF</item>
+         <item name="android:colorBackground">?attr/surfaceBright</item>
+-        <item name="scHigh">@color/materialColorSurfaceContainerHigh</item>
+-        <item name="primary">@color/materialColorPrimary</item>
+-        <item name="tertiary">@color/materialColorTertiary</item>
+-        <item name="onSurface">@color/materialColorOnSurface</item>
+-        <item name="onSurfaceVariant">@color/materialColorOnSurfaceVariant</item>
+-        <item name="outline">@color/materialColorOutline</item>
+-
+-        <item name="shadeActive">@color/customColorShadeActive</item>
+-        <item name="onShadeActive">@color/customColorOnShadeActive</item>
+-        <item name="onShadeActiveVariant">@color/customColorOnShadeActiveVariant</item>
+-        <item name="shadeInactive">@color/customColorShadeInactive</item>
+-        <item name="onShadeInactive">@color/customColorOnShadeInactive</item>
+-        <item name="onShadeInactiveVariant">@color/customColorOnShadeInactiveVariant</item>
+-        <item name="shadeDisabled">@color/customColorShadeDisabled</item>
+-        <item name="underSurface">@color/customColorUnderSurface</item>
++        <item name="scHigh">#FFFFFFFF</item>
++        <item name="primary">#FFFFFFFF</item>
++        <item name="tertiary">#FFFFFFFF</item>
++        <item name="onSurface">#FF000000</item>
++        <item name="onSurfaceVariant">#FF333333</item>
++        <item name="outline">#FF333333</item>
++        <item name="shadeActive">#FF000000</item>
++        <item name="onShadeActive">#FFFFFFFF</item>
++        <item name="onShadeActiveVariant">#FFDDDDDD</item>
++        <item name="shadeInactive">#FFEEEEEE</item>
++        <item name="onShadeInactive">#FF000000</item>
++        <item name="onShadeInactiveVariant">#FF333333</item>
++        <item name="shadeDisabled">#FFF6F6F6</item>
++        <item name="underSurface">#FFFFFFFF</item>
+         <item name="android:itemTextAppearance">@style/Control.MenuItem</item>
++        <item name="android:textColorPrimary">#FF000000</item>
++        <item name="android:textColorSecondary">#FF333333</item>
+     </style>
+ 
+     <!-- Cannot double inherit. Use Theme.SystemUI.QuickSettings in code to match -->
+-- 
+2.43.0
+

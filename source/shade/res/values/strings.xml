@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="a11y_desc">Draws the e-ink notification shade, quick toggles, lock screen and volume panel.</string>
+  <string name="weather_widget_desc">Weather now and the next four days, in black and white.</string>
+  <string name="calendar_widget_desc">Your next events, in black and white.</string>
+</resources>

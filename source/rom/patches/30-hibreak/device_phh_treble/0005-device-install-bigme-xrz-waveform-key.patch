@@ -1,0 +1,34 @@
+From d75518ebd98ac488cc3183cac2a010ae3c1cb695 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 21:54:57 +0100
+Subject: [PATCH] device: install Bigme XRZ waveform key
+
+---
+ .gitignore | 1 +
+ base.mk    | 4 ++++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/.gitignore b/.gitignore
+index a2533a7..7a05120 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,3 +1,4 @@
+ .*.swp
+ treble_*mk
+ AndroidProducts.mk
++bigme-display/eink_key
+diff --git a/base.mk b/base.mk
+index b735fc6..e1a2c1c 100644
+--- a/base.mk
++++ b/base.mk
+@@ -265,3 +265,7 @@ PRODUCT_PRODUCT_PROPERTIES += \
+     persist.settings.large_screen_opt.enabled=true
+ 
+ # VNDK 28/29 snapshots dropped: the HiBreak Pro vendor is VNDK 31 (gsi_release.mk keeps 31-34).
++
++# HiBreak Pro XRZ waveform key is supplied from /data/hibreak at build time.
++PRODUCT_COPY_FILES += \
++    device/phh/treble/bigme-display/eink_key:system/eink_key
+-- 
+2.43.0
+

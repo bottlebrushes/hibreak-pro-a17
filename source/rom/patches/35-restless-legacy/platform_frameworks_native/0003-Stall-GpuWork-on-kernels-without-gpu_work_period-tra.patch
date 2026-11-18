@@ -1,0 +1,67 @@
+From 0bf535b16ffaafb4e3eda4d0412d7dc1e44d998b Mon Sep 17 00:00:00 2001
+From: "Christopher A. Williamson" <contact@chrisaw.io>
+Date: Thu, 12 Mar 2026 09:57:59 +0000
+Subject: [PATCH] Stall GpuWork on kernels without gpu_work_period tracepoint
+
+On devices like the TCL 40SE (MT6765), the kernel does not expose the power/gpu_work_period tracepoint needed by GpuWork. This causes gpuservice to repeatedly crash (SIGABRT in GpuWork::initialize()), leading to a bootloop via cascading ANRs in SystemUI, Phone, etc.
+
+Apply the same pattern as the GpuMem BPF-less kernel workaround: check for the tracepoint after the initial 30s sleep and stall the thread indefinitely if it is absent, so gpuservice stays alive without crashing.
+---
+ services/gpuservice/gpuwork/GpuWork.cpp    |  9 +++++++++
+ services/surfaceflinger/SurfaceFlinger.cpp | 11 ++++++++---
+ 2 files changed, 17 insertions(+), 3 deletions(-)
+
+diff --git a/services/gpuservice/gpuwork/GpuWork.cpp b/services/gpuservice/gpuwork/GpuWork.cpp
+index 08cf43c..b1a9c68 100644
+--- a/services/gpuservice/gpuwork/GpuWork.cpp
++++ b/services/gpuservice/gpuwork/GpuWork.cpp
+@@ -144,6 +144,15 @@ void GpuWork::initialize() {
+     // Workaround b/347947040 by allowing time for statsd / bpf setup.
+     std::this_thread::sleep_for(std::chrono::seconds(30));
+ 
++    // If the gpu_work_period tracepoint does not exist (e.g. older/GSI kernels),
++    // stall this thread forever to prevent gpuservice from crash-looping.
++    struct stat sb;
++    if (stat("/sys/kernel/tracing/events/power/gpu_work_period", &sb) != 0) {
++        ALOGI("gpu_work_period tracepoint not found, stalling");
++        while (true) sleep(1);
++    }
++
++
+     // Make sure BPF programs are loaded.
+     bpf::waitForProgsLoaded();
+ 
+diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
+index 1455f74..759b590 100644
+--- a/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -607,10 +607,14 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory) : SurfaceFlinger(factory, SkipI
+ }
+ 
+ LatchUnsignaledConfig SurfaceFlinger::getLatchUnsignaledConfig() {
+-    if (base::GetBoolProperty("debug.sf.latch_unsignaled"s, false)) {
++    // phh: force-latch all buffers unsignaled when requested via treble app
++    if (base::GetBoolProperty("persist.sys.phh.sf_latch_unsignaled"s, false)) {
+         return LatchUnsignaledConfig::Always;
+     }
+-    if (base::GetBoolProperty("debug.sf.auto_latch_unsignaled"s, true)) {
++
++    // phh: auto-latch single-layer buffers (default behaviour)
++    if (base::GetBoolProperty("persist.sys.phh.sf_auto_latch_unsignaled"s,
++            base::GetBoolProperty("debug.sf.auto_latch_unsignaled"s, true))) {
+         return LatchUnsignaledConfig::AutoSingleLayer;
+     }
+     return LatchUnsignaledConfig::Disabled;
+@@ -3073,7 +3077,8 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
+         }
+     }
+ 
+-    if (base::GetBoolProperty("persist.sys.phh.enable_sf_hwc_backpressure"s, true)
++    if (base::GetBoolProperty("persist.sys.phh.enable_sf_hwc_backpressure"s, false)
++            && !base::GetBoolProperty("persist.sys.phh.sf_disable_backpressure"s, false)
+             && pacesetterFrameTargetPtr->isFramePending()) {
+         if (mBackpressureGpuComposition || pacesetterFrameTargetPtr->didMissHwcFrame()) {
+             mScheduler->getVsyncSchedule()->getTracker().onFrameMissed(
+-- 
+2.43.0
+

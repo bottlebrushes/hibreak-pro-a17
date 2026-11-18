@@ -1,0 +1,209 @@
+From 6612f18fb4fcfc2bc8f3c7631d31687068383a20 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 21:54:54 +0100
+Subject: [PATCH] sepolicy: restore Bigme XRZ vendor policy
+
+---
+ prebuilts/api/202504/private/bigme_xrz.te         | 4 ++++
+ prebuilts/api/202504/private/compat/31.0/31.0.cil | 3 +++
+ prebuilts/api/202504/private/file_contexts        | 2 ++
+ prebuilts/api/202504/private/property_contexts    | 5 +++++
+ prebuilts/api/202504/public/bigme_xrz.te          | 4 ++++
+ prebuilts/api/202604/private/bigme_xrz.te         | 4 ++++
+ prebuilts/api/202604/private/compat/31.0/31.0.cil | 3 +++
+ prebuilts/api/202604/private/file_contexts        | 2 ++
+ prebuilts/api/202604/private/property_contexts    | 5 +++++
+ prebuilts/api/202604/public/bigme_xrz.te          | 4 ++++
+ prebuilts/api/31.0/public/bigme_xrz.te            | 5 +++++
+ private/bigme_xrz.te                              | 6 ++++++
+ private/compat/31.0/31.0.cil                      | 3 +++
+ private/file_contexts                             | 2 ++
+ private/property_contexts                         | 5 +++++
+ public/bigme_xrz.te                               | 4 ++++
+ 16 files changed, 61 insertions(+)
+ create mode 100644 prebuilts/api/202504/private/bigme_xrz.te
+ create mode 100644 prebuilts/api/202504/public/bigme_xrz.te
+ create mode 100644 prebuilts/api/202604/private/bigme_xrz.te
+ create mode 100644 prebuilts/api/202604/public/bigme_xrz.te
+ create mode 100644 prebuilts/api/31.0/public/bigme_xrz.te
+ create mode 100644 private/bigme_xrz.te
+ create mode 100644 public/bigme_xrz.te
+
+diff --git a/prebuilts/api/202504/private/bigme_xrz.te b/prebuilts/api/202504/private/bigme_xrz.te
+new file mode 100644
+index 0000000..fde35f8
+--- /dev/null
++++ b/prebuilts/api/202504/private/bigme_xrz.te
+@@ -0,0 +1,4 @@
++allow hal_graphics_composer_server xrz_system_file:file r_file_perms;
++get_prop(hal_graphics_composer_server, vendor_xrz_prop)
++set_prop(hal_graphics_composer_server, vendor_xrz_prop)
++set_prop(surfaceflinger, vendor_xrz_prop)
+diff --git a/prebuilts/api/202504/private/compat/31.0/31.0.cil b/prebuilts/api/202504/private/compat/31.0/31.0.cil
+index b0df314..ece9fdb 100644
+--- a/prebuilts/api/202504/private/compat/31.0/31.0.cil
++++ b/prebuilts/api/202504/private/compat/31.0/31.0.cil
+@@ -2488,3 +2488,6 @@
+ (typeattributeset zygote_exec_31_0 (zygote_exec))
+ (typeattributeset zygote_socket_31_0 (zygote_socket))
+ (typeattributeset zygote_tmpfs_31_0 (zygote_tmpfs))
++(typeattributeset vendor_xrz_prop_31_0 (vendor_xrz_prop))
++(typeattributeset xrz_debugfs_31_0 (xrz_debugfs))
++(typeattributeset xrz_system_file_31_0 (xrz_system_file))
+diff --git a/prebuilts/api/202504/private/file_contexts b/prebuilts/api/202504/private/file_contexts
+index 0b3e7f4..6b81943 100644
+--- a/prebuilts/api/202504/private/file_contexts
++++ b/prebuilts/api/202504/private/file_contexts
+@@ -957,3 +957,5 @@
+ #############################
+ # For overlays
+ /second_stage_resources/overlay_remounter u:object_r:overlay_remounter_exec:s0
++
++/system/eink_key    u:object_r:xrz_system_file:s0
+diff --git a/prebuilts/api/202504/private/property_contexts b/prebuilts/api/202504/private/property_contexts
+index ff877c9..266d0c0 100644
+--- a/prebuilts/api/202504/private/property_contexts
++++ b/prebuilts/api/202504/private/property_contexts
+@@ -1824,3 +1824,8 @@ mmd. u:object_r:mmd_prop:s0
+ mmd.zram.enabled u:object_r:mmd_shared_prop:s0 exact bool
+ mmd.enabled_aconfig u:object_r:mmd_shared_status_prop:s0 exact bool
+ mmd.status. u:object_r:mmd_status_prop:s0
++
++# Factory XRZ property ownership shared with the vendor composer.
++vendor.xrz.             u:object_r:vendor_xrz_prop:s0
++persist.vendor.xrz.     u:object_r:vendor_xrz_prop:s0
++ro.vendor.xrz.          u:object_r:vendor_xrz_prop:s0
+diff --git a/prebuilts/api/202504/public/bigme_xrz.te b/prebuilts/api/202504/public/bigme_xrz.te
+new file mode 100644
+index 0000000..b0320f0
+--- /dev/null
++++ b/prebuilts/api/202504/public/bigme_xrz.te
+@@ -0,0 +1,4 @@
++# Factory vendor-facing XRZ policy types shared with the vendor composer.
++type xrz_debugfs, fs_type, debugfs_type;
++type xrz_system_file, file_type, system_file_type, mlstrustedobject;
++system_public_prop(vendor_xrz_prop)
+diff --git a/prebuilts/api/202604/private/bigme_xrz.te b/prebuilts/api/202604/private/bigme_xrz.te
+new file mode 100644
+index 0000000..fde35f8
+--- /dev/null
++++ b/prebuilts/api/202604/private/bigme_xrz.te
+@@ -0,0 +1,4 @@
++allow hal_graphics_composer_server xrz_system_file:file r_file_perms;
++get_prop(hal_graphics_composer_server, vendor_xrz_prop)
++set_prop(hal_graphics_composer_server, vendor_xrz_prop)
++set_prop(surfaceflinger, vendor_xrz_prop)
+diff --git a/prebuilts/api/202604/private/compat/31.0/31.0.cil b/prebuilts/api/202604/private/compat/31.0/31.0.cil
+index b0df314..ece9fdb 100644
+--- a/prebuilts/api/202604/private/compat/31.0/31.0.cil
++++ b/prebuilts/api/202604/private/compat/31.0/31.0.cil
+@@ -2488,3 +2488,6 @@
+ (typeattributeset zygote_exec_31_0 (zygote_exec))
+ (typeattributeset zygote_socket_31_0 (zygote_socket))
+ (typeattributeset zygote_tmpfs_31_0 (zygote_tmpfs))
++(typeattributeset vendor_xrz_prop_31_0 (vendor_xrz_prop))
++(typeattributeset xrz_debugfs_31_0 (xrz_debugfs))
++(typeattributeset xrz_system_file_31_0 (xrz_system_file))
+diff --git a/prebuilts/api/202604/private/file_contexts b/prebuilts/api/202604/private/file_contexts
+index 7678a97..a40ebe3 100644
+--- a/prebuilts/api/202604/private/file_contexts
++++ b/prebuilts/api/202604/private/file_contexts
+@@ -984,3 +984,5 @@
+ #############################
+ # For casefolding_remover
+ /system/bin/casefolding_remover u:object_r:casefolding_remover_exec:s0
++
++/system/eink_key    u:object_r:xrz_system_file:s0
+diff --git a/prebuilts/api/202604/private/property_contexts b/prebuilts/api/202604/private/property_contexts
+index 8e57d98..4aff3a3 100644
+--- a/prebuilts/api/202604/private/property_contexts
++++ b/prebuilts/api/202604/private/property_contexts
+@@ -1951,3 +1951,8 @@ service.aiseal. u:object_r:aiseal_prop:s0
+ 
+ # Wear dynamic thermal profile property
+ thermal.dynamic_config_profile    u:object_r:thermal_profile_prop:s0 exact enum default setup kids_setup kids
++
++# Factory XRZ property ownership shared with the vendor composer.
++vendor.xrz.             u:object_r:vendor_xrz_prop:s0
++persist.vendor.xrz.     u:object_r:vendor_xrz_prop:s0
++ro.vendor.xrz.          u:object_r:vendor_xrz_prop:s0
+diff --git a/prebuilts/api/202604/public/bigme_xrz.te b/prebuilts/api/202604/public/bigme_xrz.te
+new file mode 100644
+index 0000000..b0320f0
+--- /dev/null
++++ b/prebuilts/api/202604/public/bigme_xrz.te
+@@ -0,0 +1,4 @@
++# Factory vendor-facing XRZ policy types shared with the vendor composer.
++type xrz_debugfs, fs_type, debugfs_type;
++type xrz_system_file, file_type, system_file_type, mlstrustedobject;
++system_public_prop(vendor_xrz_prop)
+diff --git a/prebuilts/api/31.0/public/bigme_xrz.te b/prebuilts/api/31.0/public/bigme_xrz.te
+new file mode 100644
+index 0000000..a38bcbf
+--- /dev/null
++++ b/prebuilts/api/31.0/public/bigme_xrz.te
+@@ -0,0 +1,5 @@
++# Bigme stock system policy (vendor plat_pub_versioned 31.0 declares these; see private/compat/31.0).
++attribute xrz_property_type;
++type xrz_debugfs, fs_type, debugfs_type;
++type xrz_system_file, file_type, system_file_type, mlstrustedobject;
++type vendor_xrz_prop, property_type, system_property_type, system_public_property_type, xrz_property_type;
+diff --git a/private/bigme_xrz.te b/private/bigme_xrz.te
+new file mode 100644
+index 0000000..bc013d6
+--- /dev/null
++++ b/private/bigme_xrz.te
+@@ -0,0 +1,6 @@
++allow hal_graphics_composer_server xrz_system_file:file r_file_perms;
++get_prop(hal_graphics_composer_server, vendor_xrz_prop)
++set_prop(hal_graphics_composer_server, vendor_xrz_prop)
++
++# Apply per-app display profiles on the composition thread.
++set_prop(surfaceflinger, vendor_xrz_prop)
+diff --git a/private/compat/31.0/31.0.cil b/private/compat/31.0/31.0.cil
+index b0df314..ece9fdb 100644
+--- a/private/compat/31.0/31.0.cil
++++ b/private/compat/31.0/31.0.cil
+@@ -2488,3 +2488,6 @@
+ (typeattributeset zygote_exec_31_0 (zygote_exec))
+ (typeattributeset zygote_socket_31_0 (zygote_socket))
+ (typeattributeset zygote_tmpfs_31_0 (zygote_tmpfs))
++(typeattributeset vendor_xrz_prop_31_0 (vendor_xrz_prop))
++(typeattributeset xrz_debugfs_31_0 (xrz_debugfs))
++(typeattributeset xrz_system_file_31_0 (xrz_system_file))
+diff --git a/private/file_contexts b/private/file_contexts
+index 3d28b0f..97436d8 100644
+--- a/private/file_contexts
++++ b/private/file_contexts
+@@ -1002,3 +1002,5 @@
+ #############################
+ # For casefolding_remover
+ /system/bin/casefolding_remover u:object_r:casefolding_remover_exec:s0
++
++/system/eink_key    u:object_r:xrz_system_file:s0
+diff --git a/private/property_contexts b/private/property_contexts
+index 38f3fea..dd37eba 100644
+--- a/private/property_contexts
++++ b/private/property_contexts
+@@ -1964,3 +1964,8 @@ service.aiseal. u:object_r:aiseal_prop:s0
+ 
+ # Wear dynamic thermal profile property
+ thermal.dynamic_config_profile    u:object_r:thermal_profile_prop:s0 exact enum default setup kids_setup kids
++
++# Factory XRZ property ownership shared with the vendor composer.
++vendor.xrz.             u:object_r:vendor_xrz_prop:s0
++persist.vendor.xrz.     u:object_r:vendor_xrz_prop:s0
++ro.vendor.xrz.          u:object_r:vendor_xrz_prop:s0
+diff --git a/public/bigme_xrz.te b/public/bigme_xrz.te
+new file mode 100644
+index 0000000..b0320f0
+--- /dev/null
++++ b/public/bigme_xrz.te
+@@ -0,0 +1,4 @@
++# Factory vendor-facing XRZ policy types shared with the vendor composer.
++type xrz_debugfs, fs_type, debugfs_type;
++type xrz_system_file, file_type, system_file_type, mlstrustedobject;
++system_public_prop(vendor_xrz_prop)
+-- 
+2.43.0
+

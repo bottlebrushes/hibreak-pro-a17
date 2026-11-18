@@ -1,0 +1,108 @@
+From 74381efa3a1bd70b9f55d1590974a4909f2842d1 Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 02:16:57 +0100
+Subject: [PATCH] A17 build fixes: BT audio HAL
+ getLeAudioAseCodecConfiguredParameters, explicit user root in init services
+
+Android 17's bluetooth.audio AIDL V6 adds getLeAudioAseCodecConfiguredParameters
+(unsupported, as in the AOSP default HAL). host_init_verifier now rejects
+services without an explicit user.
+---
+ bluetooth/audio/hal/BluetoothAudioProvider.cpp | 16 ++++++++++++++++
+ bluetooth/audio/hal/BluetoothAudioProvider.h   | 10 ++++++++++
+ files/adbd.rc                                  |  1 +
+ remote/phh-remotectl.rc                        |  1 +
+ vndk.rc                                        |  2 ++
+ 5 files changed, 30 insertions(+)
+
+diff --git a/bluetooth/audio/hal/BluetoothAudioProvider.cpp b/bluetooth/audio/hal/BluetoothAudioProvider.cpp
+index 8d03fae..07595cb 100644
+--- a/bluetooth/audio/hal/BluetoothAudioProvider.cpp
++++ b/bluetooth/audio/hal/BluetoothAudioProvider.cpp
+@@ -274,6 +274,22 @@ ndk::ScopedAStatus BluetoothAudioProvider::onSourceAseMetadataChanged(
+   return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ };
+ 
++ndk::ScopedAStatus BluetoothAudioProvider::getLeAudioAseCodecConfiguredParameters(
++    const std::optional<std::vector<std::optional<
++        ::aidl::android::hardware::bluetooth::audio::LeAudioAseConfiguration>>>&
++        in_sinkAseConfiguration,
++    const std::optional<std::vector<std::optional<
++        ::aidl::android::hardware::bluetooth::audio::LeAudioAseConfiguration>>>&
++        in_sourceAseConfiguration,
++    std::optional<::aidl::android::hardware::bluetooth::audio::
++        IBluetoothAudioProvider::LeAudioAseCodecConfiguredResponse>*
++        _aidl_return) {
++  (void)in_sinkAseConfiguration;
++  (void)in_sourceAseConfiguration;
++  (void)_aidl_return;
++  return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
++}
++
+ ndk::ScopedAStatus BluetoothAudioProvider::getLeAudioBroadcastConfiguration(
+     const std::optional<std::vector<std::optional<
+         ::aidl::android::hardware::bluetooth::audio::IBluetoothAudioProvider::
+diff --git a/bluetooth/audio/hal/BluetoothAudioProvider.h b/bluetooth/audio/hal/BluetoothAudioProvider.h
+index 866eaeb..8465091 100644
+--- a/bluetooth/audio/hal/BluetoothAudioProvider.h
++++ b/bluetooth/audio/hal/BluetoothAudioProvider.h
+@@ -110,6 +110,16 @@ class BluetoothAudioProvider : public BnBluetoothAudioProvider {
+       const std::optional<std::vector<std::optional<
+           ::aidl::android::hardware::bluetooth::audio::MetadataLtv>>>&
+           in_metadata) override;
++  ndk::ScopedAStatus getLeAudioAseCodecConfiguredParameters(
++      const std::optional<std::vector<std::optional<
++          ::aidl::android::hardware::bluetooth::audio::LeAudioAseConfiguration>>>&
++          in_sinkAseConfiguration,
++      const std::optional<std::vector<std::optional<
++          ::aidl::android::hardware::bluetooth::audio::LeAudioAseConfiguration>>>&
++          in_sourceAseConfiguration,
++      std::optional<::aidl::android::hardware::bluetooth::audio::
++          IBluetoothAudioProvider::LeAudioAseCodecConfiguredResponse>*
++          _aidl_return) override;
+   ndk::ScopedAStatus getLeAudioBroadcastConfiguration(
+       const std::optional<std::vector<std::optional<
+           ::aidl::android::hardware::bluetooth::audio::IBluetoothAudioProvider::
+diff --git a/files/adbd.rc b/files/adbd.rc
+index 55b3311..de17682 100644
+--- a/files/adbd.rc
++++ b/files/adbd.rc
+@@ -1,4 +1,5 @@
+ service adbd_system /system/bin/adbd --root_seclabel=u:r:su:s0
++	user root
+ 	class core
+ 	socket adbd stream 660 system system
+ 	disabled
+diff --git a/remote/phh-remotectl.rc b/remote/phh-remotectl.rc
+index 3e7aec1..0cb7c96 100644
+--- a/remote/phh-remotectl.rc
++++ b/remote/phh-remotectl.rc
+@@ -10,4 +10,5 @@ on property:persist.sys.phh.remote=false
+ 
+ 
+ service phh-remotectl /system/bin/phh-remotectl.sh
++   user root
+    seclabel u:r:phhsu_daemon:s0
+diff --git a/vndk.rc b/vndk.rc
+index 2f56680..5c41f01 100644
+--- a/vndk.rc
++++ b/vndk.rc
+@@ -13,6 +13,7 @@ on early-boot
+     exec - root -- /system/bin/phh-on-data.sh
+ 
+ service phh_on_boot /system/bin/phh-on-boot.sh
++    user root
+     oneshot
+     disabled
+ 
+@@ -107,6 +108,7 @@ on property:persist.sys.phh.dynamic_fps=*
+ 
+ # Set watchdog timer to 30 seconds and pet it every 10 seconds to get a 20 second margin
+ service watchdogd-gsi /system/bin/watchdogd 10 20
++    user root
+     class core
+     oneshot
+     disabled
+-- 
+2.43.0
+

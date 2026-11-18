@@ -1,0 +1,32 @@
+From 85e686db00be2e5f4cd4bf3072e1e02ba074d9aa Mon Sep 17 00:00:00 2001
+From: HiBreak Pro A17 <hibreak-pro-a17@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:56:47 +0100
+Subject: [PATCH] filesystem: allow non-generic modules when
+ TREBLE_ALLOW_NON_GENERIC_SYSTEM_IMAGE=true
+
+TrebleDroid framework patches link vendor HAL client libraries into
+framework-internal-utils and services.core; AOSP's aosp_shared_system_image
+then fails analysis although treble_* products never build it.
+---
+ filesystem/filesystem.go | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/filesystem/filesystem.go b/filesystem/filesystem.go
+index 757344f..3ff425d 100644
+--- a/filesystem/filesystem.go
++++ b/filesystem/filesystem.go
+@@ -1295,6 +1295,11 @@ func (f *filesystem) verifyGenericConfig(ctx android.ModuleContext) {
+ 		return true
+ 	})
+ 
++	// TrebleDroid GSIs link vendor HAL client libraries (Samsung radio/sysinput, ...) into the framework on purpose;
++	// AOSP's own generic system images (aosp_shared_system_image) aren't built for treble_* products.
++	if len(nonGenericModules) > 0 && ctx.Config().IsEnvTrue("TREBLE_ALLOW_NON_GENERIC_SYSTEM_IMAGE") {
++		return
++	}
+ 	if len(nonGenericModules) > 0 {
+ 		errStr := "\n"
+ 		for _, m := range android.SortedKeys(nonGenericModules) {
+-- 
+2.43.0
+
